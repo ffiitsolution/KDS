@@ -32,6 +32,9 @@ public class WebSecurityConfig {
     
     @Value("${app.outletCode}")
     private String outletCode;
+
+    @Value("${app.external.properties}")
+    private String externalProperties;
     
 
     @Bean
@@ -75,7 +78,7 @@ public class WebSecurityConfig {
         System.out.println("============================================================================");
         System.out.println("===============              outlet code : " + outletCode + "            =================");
         System.out.println("============================================================================");
-        System.out.println("Attention!!! Please ensure kds.properties file is available in 'c:\\APP_CONFIG\\kds.properties'");
+        System.out.println("Attention!!! Please ensure kds.properties file is available in " + externalProperties);
         System.out.println("============================================================================");
         UserDetails userDetails = User.withDefaultPasswordEncoder()
 			.username(kdsUsername)
