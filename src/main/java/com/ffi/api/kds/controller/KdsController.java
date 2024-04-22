@@ -24,7 +24,7 @@ public class KdsController {
     @GetMapping
     public Map<String, Object> version() {
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put("VERSION", "ITD FFI 2024 1.0.1");
+        map.put("", "ITD FFI 2024 1.0.1");
         return map;
     }
     
