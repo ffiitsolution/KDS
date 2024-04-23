@@ -1,6 +1,7 @@
 package com.ffi.api.kds.dao.impl;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -34,7 +35,7 @@ public class AssemblyDaoImpl implements AssemblyDao {
     @Override
     public List<Map<String, Object>> queueOrder() {
         String headerQuery = "SELECT * FROM T_KDS_HEADER tkh WHERE TKH.ASSEMBLY_STATUS = 'AQ' AND OUTLET_CODE ="
-                + outletCode + " ORDER BY KDS_NO";
+                + outletCode + " ORDER BY TO_NUMBER(KDS_NO)";
         List<Map<String, Object>> headerResults = jdbcTemplate.query(headerQuery, new HashMap<>(),
                 new DynamicRowMapper());
         for (Map<String, Object> header : headerResults) {
@@ -51,10 +52,10 @@ public class AssemblyDaoImpl implements AssemblyDao {
             queryItemMap.put("outletCode", outletCode);
 
             String itemQuery = "SELECT A.*, B.ITEM_DESCRIPTION, CASE WHEN A.MENU_ITEM_CODE IN (SELECT code FROM M_GLOBAL mg "
-                        + " WHERE VALUE IN (11, 12, 13) AND COND = 'ITEM' AND STATUS = 'A') THEN 1 ELSE 0 END AS PREPARE_MENU_FLAG "
-                        + " FROM T_KDS_ITEM A LEFT JOIN M_ITEM B ON A.MENU_ITEM_CODE = B.ITEM_CODE WHERE A.BILL_NO = :billNo AND "
-                        + " A.DAY_SEQ = :daySeq AND A.POS_CODE = :posCode AND A.OUTLET_CODE = :outletCode AND A.TRANS_DATE = :transDate "
-                        + " ORDER BY A.ITEM_SEQ ASC";
+                    + " WHERE VALUE IN (11, 12, 13) AND COND = 'ITEM' AND STATUS = 'A') THEN 1 ELSE 0 END AS PREPARE_MENU_FLAG "
+                    + " FROM T_KDS_ITEM A LEFT JOIN M_ITEM B ON A.MENU_ITEM_CODE = B.ITEM_CODE WHERE A.BILL_NO = :billNo AND "
+                    + " A.DAY_SEQ = :daySeq AND A.POS_CODE = :posCode AND A.OUTLET_CODE = :outletCode AND A.TRANS_DATE = :transDate "
+                    + " ORDER BY A.ITEM_SEQ ASC";
             List<Map<String, Object>> itemResults = jdbcTemplate.query(itemQuery, queryItemMap, new DynamicRowMapper());
             for (Map<String, Object> item : itemResults) {
 
@@ -90,7 +91,8 @@ public class AssemblyDaoImpl implements AssemblyDao {
         String doneAssemblyQuery = " UPDATE T_KDS_HEADER SET "
                 + " ASSEMBLY_STATUS = 'AF', ASSEMBLY_END_TIME = :timestamp, "
                 + " DISPATCH_STATUS = 'DP', DISPATCH_START_TIME = :timestamp, "
-                + " PICKUP_STATUS='SRV', PICKUP_START_TIME = :timestamp "
+                + " PICKUP_STATUS='SRV', PICKUP_START_TIME = :timestamp, "
+                + " DATE_UPD = :timestamp, TIME_UPD=:timeString, USER_UPD=NULL "
                 + "     WHERE BILL_NO = :billNo "
                 + "     AND KDS_NO = :kdsNo "
                 + "     AND POS_CODE = :posCode "
@@ -98,19 +100,35 @@ public class AssemblyDaoImpl implements AssemblyDao {
                 + "     AND OUTLET_CODE = :outletCode"
                 + "     AND ASSEMBLY_STATUS = 'AQ'";
 
+        Date timestamp = new Date();
+        SimpleDateFormat timeFormatter = new SimpleDateFormat("HHmmss");
         jdbcTemplate.update(doneAssemblyQuery, new MapSqlParameterSource()
                 .addValue("billNo", kds.getBillNo())
                 .addValue("kdsNo", kds.getKdsNo())
                 .addValue("posCode", kds.getPosCode())
                 .addValue("daySeq", kds.getDaySeq())
                 .addValue("outletCode", outletCode)
-                .addValue("timestamp", new Date()));
+                .addValue("timeString", timeFormatter.format(timestamp))
+                .addValue("timestamp", timestamp));
         return kds;
     }
 
     @Override
-    public PrepareItemSupplyBaseRequest prepareItemSupplyBase(PrepareItemSupplyBaseRequest e) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'prepareItemSupplyBase'");
+    public PrepareItemSupplyBaseRequest prepareItemSupplyBase(PrepareItemSupplyBaseRequest request) {
+        String bumpQuery = "UPDATE T_KDS_ITEM_DETAIL SET ITEM_FLOW = 'B', ITEM_STATUS  = 'P', "
+                + " DATE_UPD=:timestamp, TIME_UPD=:timeString, USER_UPD=NULL "
+                + " WHERE BILL_NO = :billNo AND POS_CODE =:posCode AND DAY_SEQ=:daySeq AND ITEM_SEQ=:itemSeq";
+
+        Date timestamp = new Date();
+        SimpleDateFormat timeFormatter = new SimpleDateFormat("HHmmss");
+        jdbcTemplate.update(bumpQuery, new MapSqlParameterSource()
+                .addValue("billNo", request.getBillNo())
+                .addValue("posCode", request.getPosCode())
+                .addValue("daySeq", request.getDaySeq())
+                .addValue("itemSeq", request.getItemSeq())
+                .addValue("outletCode", outletCode)
+                .addValue("timeString", timeFormatter.format(timestamp))
+                .addValue("timestamp", timestamp));
+        return request;
     }
 }
