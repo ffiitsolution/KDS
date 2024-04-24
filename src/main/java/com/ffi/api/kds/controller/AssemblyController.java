@@ -18,13 +18,14 @@ import com.ffi.api.kds.service.AssemblyService;
 
 /**
  *
- * @author IT
+ * @author KDS Backend Teams
  */
 @RestController
 @RequestMapping("/assembly")
 public class AssemblyController {
 
     private final AssemblyService assemblyService;
+
     public AssemblyController(final AssemblyService assemblyService) {
         this.assemblyService = assemblyService;
     }
