@@ -39,6 +39,11 @@
     	    <groupId>org.springframework.boot</groupId>
     	    <artifactId>spring-boot-starter-security</artifactId>
     	</dependency>
+		<!-- spring websocket -->
+		<dependency>
+      		<groupId>org.springframework.boot</groupId>
+      		<artifactId>spring-boot-starter-websocket</artifactId>
+    	</dependency>
 		<!-- actuator -->
 		<dependency>
     		<groupId>org.springframework.boot</groupId>
@@ -55,6 +60,12 @@
 		    <groupId>com.google.code.gson</groupId>
 		    <artifactId>gson</artifactId>
 		    <version>2.10.1</version>
+		</dependency>
+		<!-- model mapper -->
+		<dependency>
+		    <groupId>org.modelmapper</groupId>
+		    <artifactId>modelmapper</artifactId>
+		    <version>3.2.0</version>
 		</dependency>
 		<!-- swagger ui -->
 	   	<dependency>

@@ -29,7 +29,7 @@ public interface AssemblyDao {
     public DoneAssemblyRequest doneAssembly(DoneAssemblyRequest e);
 
     /**
-     * Mark the queue orders to done assembly.
+     * Mark item ready to create in supply base.
      * 
      * @return A Object PrepareItemAssembyRequest.
      *         <p>Note: PrepareItemAssembyRequest define in package <pre>com.ffi.api.kds.dto.PrepareItemAssembyRequest</pre>

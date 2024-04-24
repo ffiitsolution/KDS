@@ -29,25 +29,25 @@ public class WebSecurityConfig {
 
     @Value("${app.auth.basic.password}")
     private String kdsPassword;
-    
+
     @Value("${app.outletCode}")
     private String outletCode;
 
     @Value("${app.external.properties}")
     private String externalProperties;
-    
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(crsf -> crsf.disable())
-        .cors(cors -> corsConfigurationSource())
-        .authorizeHttpRequests(u -> u.antMatchers( "/swagger-ui/**", "/v3/api-docs/**").permitAll().anyRequest().authenticated())
-        .httpBasic(basic -> Customizer.withDefaults())
-        .formLogin(form -> form.disable())
-        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                .cors(cors -> corsConfigurationSource())
+                .authorizeHttpRequests(u -> u.antMatchers("/swagger-ui/**", "/v3/api-docs/**", "/actuator/**")
+                        .permitAll().anyRequest().authenticated())
+                .httpBasic(basic -> Customizer.withDefaults())
+                .formLogin(form -> form.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();
     }
-    
+
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -63,34 +63,35 @@ public class WebSecurityConfig {
     }
 
     @Bean
-	public AuthenticationManager authenticationManager(
-			UserDetailsService userDetailsService,
-			PasswordEncoder passwordEncoder) {
-		DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-		authenticationProvider.setUserDetailsService(userDetailsService);
-		authenticationProvider.setPasswordEncoder(passwordEncoder);
+    public AuthenticationManager authenticationManager(
+            UserDetailsService userDetailsService,
+            PasswordEncoder passwordEncoder) {
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+        authenticationProvider.setUserDetailsService(userDetailsService);
+        authenticationProvider.setPasswordEncoder(passwordEncoder);
 
-		return new ProviderManager(authenticationProvider);
-	}
+        return new ProviderManager(authenticationProvider);
+    }
 
-	@Bean
-	public UserDetailsService userDetailsService() {
+    @Bean
+    public UserDetailsService userDetailsService() {
         System.out.println("============================================================================");
-        System.out.println("===============              outlet code : " + outletCode + "            =================");
+        System.out
+                .println("===============              outlet code : " + outletCode + "            =================");
         System.out.println("============================================================================");
         System.out.println("Attention!!! Please ensure kds.properties file is available in " + externalProperties);
         System.out.println("============================================================================");
         UserDetails userDetails = User.withDefaultPasswordEncoder()
-			.username(kdsUsername)
-			.password(kdsPassword)
-            .roles("ADMIN")
-			.build();
+                .username(kdsUsername)
+                .password(kdsPassword)
+                .roles("ADMIN")
+                .build();
 
-		return new InMemoryUserDetailsManager(userDetails);
-	}
+        return new InMemoryUserDetailsManager(userDetails);
+    }
 
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-	}
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
 }

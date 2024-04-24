@@ -4,9 +4,7 @@
  */
 package com.ffi.api.kds.controller;
 
-import java.util.List;
-import java.util.Map;
-
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,17 +30,17 @@ public class AssemblyController {
     }
 
     @GetMapping(value = "/queue")
-    public @ResponseBody List<Map<String, Object>> queueOrder() {
-        return assemblyService.queueOrder();
+    public @ResponseBody ResponseEntity<?> queueOrder() {
+        return ResponseEntity.ok(assemblyService.queueOrder());
     }
 
     @PutMapping(value = "/done")
-    public @ResponseBody DoneAssemblyRequest doneAssembly(@RequestBody DoneAssemblyRequest kds) {
-        return assemblyService.doneAssembly(kds);
+    public @ResponseBody ResponseEntity<?> doneAssembly(@RequestBody DoneAssemblyRequest kds) {
+        return ResponseEntity.ok(assemblyService.doneAssembly(kds));
     }
 
     @PutMapping(value = "/prepare-item-supply-base")
-    public @ResponseBody PrepareItemSupplyBaseRequest prepareItemSupplyBase(@RequestBody PrepareItemSupplyBaseRequest itemKds) {
-        return assemblyService.prepareItemSupplyBase(itemKds);
+    public @ResponseBody ResponseEntity<?> prepareItemSupplyBase(@RequestBody PrepareItemSupplyBaseRequest itemKds) {
+        return ResponseEntity.ok(assemblyService.prepareItemSupplyBase(itemKds));
     }
 }

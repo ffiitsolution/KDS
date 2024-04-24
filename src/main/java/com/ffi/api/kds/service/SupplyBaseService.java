@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 import com.ffi.api.kds.dao.SupplyBaseDao;
+import com.ffi.api.kds.dto.PrepareItemSupplyBaseRequest;
 
 @Service
 public class SupplyBaseService {
@@ -25,6 +26,10 @@ public class SupplyBaseService {
 
     public List<Map<String, Object>> pastaQueueOrder() {
         return suppliBaseDao.pastaQueueOrder();
+    }
+
+    public PrepareItemSupplyBaseRequest doneItemSupplyBase(PrepareItemSupplyBaseRequest e) {
+        return suppliBaseDao.doneItemSupplyBase(e);
     }
 
 }
