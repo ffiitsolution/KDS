@@ -40,8 +40,9 @@ public class WebSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(crsf -> crsf.disable())
                 .cors(cors -> corsConfigurationSource())
-                .authorizeHttpRequests(u -> u.antMatchers("/swagger-ui/**", "/v3/api-docs/**", "/actuator/**")
-                        .permitAll().anyRequest().authenticated())
+                .authorizeHttpRequests(
+                        u -> u.antMatchers("/swagger-ui/**", "/v3/api-docs/**", "/actuator/**", "/version", "/")
+                                .permitAll().anyRequest().authenticated())
                 .httpBasic(basic -> Customizer.withDefaults())
                 .formLogin(form -> form.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

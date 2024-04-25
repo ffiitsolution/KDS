@@ -4,6 +4,8 @@
  */
 package com.ffi.api.kds.controller;
 
+import javax.validation.Valid;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -41,7 +43,7 @@ public class AssemblyController {
     }
 
     @PutMapping(value = "/prepare-item-supply-base")
-    public @ResponseBody ResponseEntity<?> prepareItemSupplyBase(@RequestBody PrepareItemSupplyBaseRequest itemKds) {
+    public @ResponseBody ResponseEntity<?> prepareItemSupplyBase(@RequestBody @Valid PrepareItemSupplyBaseRequest itemKds) {
         return ResponseEntity.ok(assemblyService.prepareItemSupplyBase(itemKds));
     }
 }

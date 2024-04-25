@@ -1,8 +1,12 @@
 package com.ffi.api.kds.service;
 
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 
 import com.ffi.api.kds.dao.DrinkDao;
+import com.ffi.api.kds.dto.PrepareItemSupplyBaseRequest;
 
 @Service
 public class DrinkService {
@@ -10,5 +14,21 @@ public class DrinkService {
 
     public DrinkService(DrinkDao drinkDao) {
         this.drinkDao = drinkDao;
+    }
+    
+    public List<Map<String, Object>> bibQueueOrder() {
+        return drinkDao.bibQueueOrder();
+    }
+
+    public List<Map<String, Object>> iceCreamQueueOrder() {
+        return drinkDao.iceCreamQueueOrder();
+    }
+
+    public List<Map<String, Object>> otherQueueOrder() {
+        return drinkDao.otherQueueOrder();
+    }
+
+    public PrepareItemSupplyBaseRequest doneDrink(PrepareItemSupplyBaseRequest e) {
+        return drinkDao.doneDrink(e);
     }
 }

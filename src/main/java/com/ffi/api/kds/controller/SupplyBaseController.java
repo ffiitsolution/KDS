@@ -1,5 +1,7 @@
 package com.ffi.api.kds.controller;
 
+import javax.validation.Valid;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -11,6 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ffi.api.kds.dto.PrepareItemSupplyBaseRequest;
 import com.ffi.api.kds.service.SupplyBaseService;
 
+/**
+ *
+ * @author KDS Backend Teams
+ */
 @RestController
 @RequestMapping("/supply-base")
 public class SupplyBaseController {
@@ -37,7 +43,7 @@ public class SupplyBaseController {
     }
 
     @PutMapping(value = "/done-supply-base")
-    public @ResponseBody ResponseEntity<?> doneItemSupplyBase(@RequestBody PrepareItemSupplyBaseRequest itemKds) {
+    public @ResponseBody ResponseEntity<?> doneItemSupplyBase(@RequestBody @Valid PrepareItemSupplyBaseRequest itemKds) {
         return ResponseEntity.ok(supplyBaseService.doneItemSupplyBase(itemKds));
     }
 }

@@ -5,13 +5,45 @@ import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 
+import com.ffi.api.kds.dto.PrepareItemSupplyBaseRequest;
+
 @Repository
 public interface DrinkDao {
     
-    public List<Map<String, Object>> bibQueueDrink();
+    /**
+     * Retrieves and displays the queue bib orders in drink.
+     * 
+     * @return A Map where the keys are strings representing the order details and the values are objects.
+     *         <p>Note: The structure of the map should be defined as <pre>Map&lt;String, Object&gt;</pre>
+     * @author <a href="https://www.linkedin.com/in/muhammad-dani-ramadhan-645356203">Dani Ramadhan</a> 
+     */
+    public List<Map<String, Object>> bibQueueOrder();
 
-    public List<Map<String, Object>> iceCreamQueueDrink();
+    /**
+     * Retrieves and displays the queue ice cream orders in drink.
+     * 
+     * @return A Map where the keys are strings representing the order details and the values are objects.
+     *         <p>Note: The structure of the map should be defined as <pre>Map&lt;String, Object&gt;</pre>
+     * @author <a href="https://www.linkedin.com/in/muhammad-dani-ramadhan-645356203">Dani Ramadhan</a> 
+     */
+    public List<Map<String, Object>> iceCreamQueueOrder();
 
-    public List<Map<String, Object>> otherQueueDrink();
+    /**
+     * Retrieves and displays the queue other orders in drink.
+     * 
+     * @return A Map where the keys are strings representing the order details and the values are objects.
+     *         <p>Note: The structure of the map should be defined as <pre>Map&lt;String, Object&gt;</pre>
+     * @author <a href="https://www.linkedin.com/in/muhammad-dani-ramadhan-645356203">Dani Ramadhan</a> 
+     */
+    public List<Map<String, Object>> otherQueueOrder();
+
+    /**
+     * Mark item ready to serve drink.
+     * 
+     * @return A Object PrepareItemAssembyRequest.
+     *         <p>Note: PrepareItemAssembyRequest define in package <pre>com.ffi.api.kds.dto.PrepareItemAssembyRequest</pre>
+     * @author <a href="https://www.linkedin.com/in/muhammad-dani-ramadhan-645356203">Dani Ramadhan</a> 
+     */
+    public PrepareItemSupplyBaseRequest doneDrink(PrepareItemSupplyBaseRequest e);
     
 } 
