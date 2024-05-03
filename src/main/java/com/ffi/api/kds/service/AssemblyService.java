@@ -28,4 +28,8 @@ public class AssemblyService {
     public PrepareItemSupplyBaseRequest prepareItemSupplyBase(PrepareItemSupplyBaseRequest itemKds) {
         return assemblyDao.prepareItemSupplyBase(itemKds);
     }
+
+    public List<Map<String, Object>> queuePending() {
+        return assemblyDao.queuePending();
+    }
 }

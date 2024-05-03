@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import com.ffi.api.kds.dao.SupplyBaseDao;
 import com.ffi.api.kds.dto.PrepareItemSupplyBaseRequest;
+import com.ffi.api.kds.service.SocketTriggerService;
 import com.ffi.api.kds.util.DynamicRowMapper;
 
 @Repository
@@ -25,9 +26,12 @@ public class SupplyBaseDaoImpl implements SupplyBaseDao {
         private String ctaPlu;
 
         private final NamedParameterJdbcTemplate jdbcTemplate;
+        private final SocketTriggerService socketTriggerService;
 
-        public SupplyBaseDaoImpl(NamedParameterJdbcTemplate jdbcTemplate) {
+        public SupplyBaseDaoImpl(final NamedParameterJdbcTemplate jdbcTemplate,
+                        final SocketTriggerService socketTriggerService) {
                 this.jdbcTemplate = jdbcTemplate;
+                this.socketTriggerService = socketTriggerService;
         }
 
         @Override

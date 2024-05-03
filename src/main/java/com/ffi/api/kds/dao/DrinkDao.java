@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 
-import com.ffi.api.kds.dto.PrepareItemSupplyBaseRequest;
+import com.ffi.api.kds.dto.DoneDrinkRequest;
 
 @Repository
 public interface DrinkDao {
@@ -40,10 +40,10 @@ public interface DrinkDao {
     /**
      * Mark item ready to serve drink.
      * 
-     * @return A Object PrepareItemAssembyRequest.
-     *         <p>Note: PrepareItemAssembyRequest define in package <pre>com.ffi.api.kds.dto.PrepareItemAssembyRequest</pre>
+     * @return A Object DoneDrinkRequest.
+     *         <p>Note: DoneDrinkRequest define in package <pre>com.ffi.api.kds.dto.DoneDrinkRequest</pre>
      * @author <a href="https://www.linkedin.com/in/muhammad-dani-ramadhan-645356203">Dani Ramadhan</a> 
      */
-    public PrepareItemSupplyBaseRequest doneDrink(PrepareItemSupplyBaseRequest e);
+    public DoneDrinkRequest doneDrink(DoneDrinkRequest e);
     
 } 

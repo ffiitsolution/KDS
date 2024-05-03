@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.OptionalInt;
+import java.util.UUID;
 import java.util.stream.IntStream;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Repository;
 import com.ffi.api.kds.dao.AssemblyDao;
 import com.ffi.api.kds.dto.DoneAssemblyRequest;
 import com.ffi.api.kds.dto.PrepareItemSupplyBaseRequest;
+import com.ffi.api.kds.service.SocketTriggerService;
 import com.ffi.api.kds.util.DynamicRowMapper;
 import com.ffi.api.kds.util.TransformGroupingData;
 
@@ -28,16 +30,27 @@ public class AssemblyDaoImpl implements AssemblyDao {
         @Value("${app.outletCode}")
         private String outletCode;
 
-        @Value("${app.line.pos}")
         private String linePos;
+
+        private String orderType;
 
         @Value("${app.charge.take.away.plu}")
         private String ctaPlu;
 
         private final NamedParameterJdbcTemplate jdbcTemplate;
+        private final SocketTriggerService socketTriggerService;
 
-        public AssemblyDaoImpl(NamedParameterJdbcTemplate jdbcTemplate) {
+        public AssemblyDaoImpl(final NamedParameterJdbcTemplate jdbcTemplate,
+                        final SocketTriggerService socketTriggerService,
+                        final @Value("${app.line.pos}") String linePos) {
                 this.jdbcTemplate = jdbcTemplate;
+                this.socketTriggerService = socketTriggerService;
+                this.linePos = linePos;
+                if (Objects.equals("0", linePos)) {
+                        orderType = "ETA";
+                    } else if (Objects.equals("3", linePos)) {
+                        orderType = "DRT";
+                    }
         }
 
         @Override
@@ -70,8 +83,8 @@ public class AssemblyDaoImpl implements AssemblyDao {
                                 + " WHERE TKH.OUTLET_CODE = '" + outletCode + "' AND TKH.ASSEMBLY_STATUS = 'AQ' "
                                 + "        AND MG.VALUE NOT IN ('99') AND TKH.ASSEMBLY_LINE_CODE = '" + linePos + "' "
                                 + " ORDER BY TKH.START_TIME ASC, TKH.BILL_NO, TKHI.ITEM_SEQ, TKHID.ITEM_DETAIL_SEQ ";
-
-                List<Map<String, Object>> queueResult = jdbcTemplate.query(queueQuery, new DynamicRowMapper());
+                System.out.println(queueQuery);
+                                List<Map<String, Object>> queueResult = jdbcTemplate.query(queueQuery, new DynamicRowMapper());
                 List<String> groupByHeader = new LinkedList<>();
                 groupByHeader.add("kdsNo");
                 groupByHeader.add("orderType");
@@ -241,6 +254,20 @@ public class AssemblyDaoImpl implements AssemblyDao {
                                 .addValue("outletCode", outletCode)
                                 .addValue("timeString", timeFormatter.format(timestamp))
                                 .addValue("timestamp", timestamp));
+
+                socketTriggerService.refreshAssembly(UUID.randomUUID().toString());
+                socketTriggerService.refreshSupplyBase(UUID.randomUUID().toString());
                 return request;
+        }
+
+        @Override
+        public List<Map<String, Object>> queuePending() {
+                // got query from pak asep, writed by Dani
+                String pendingQuery = "SELECT a.MENU_ITEM_CODE, a.pos_code, b.kds_no,c.DESCRIPTION, a.TRANS_TYPE , a.ITEM_QTY "
+                + "  FROM T_KDS_ITEM_DETAIL a LEFT JOIN T_KDS_HEADER b ON a.BILL_NO=b.BILL_NO "
+                + " LEFT JOIN m_global c ON a.MENU_ITEM_CODE = c.CODE AND c.COND ='ITEM' WHERE a.item_status='P' "
+                + " AND b.ASSEMBLY_LINE_CODE ='"+linePos+"' AND b.ORDER_TYPE = '"+orderType+"' ORDER BY to_number(kds_no) ";
+
+                return jdbcTemplate.query(pendingQuery, new DynamicRowMapper());
         }
 }

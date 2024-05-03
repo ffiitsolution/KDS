@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ffi.api.kds.dto.PrepareItemSupplyBaseRequest;
+import com.ffi.api.kds.dto.DoneDrinkRequest;
 import com.ffi.api.kds.service.DrinkService;
 
 /**
@@ -41,7 +41,7 @@ public class DrinkController {
     }
 
     @PutMapping(value = "/done-drink")
-    public @ResponseBody ResponseEntity<?> prepareItemSupplyBase(@RequestBody PrepareItemSupplyBaseRequest itemKds) {
-        return ResponseEntity.ok(drinkService.doneDrink(itemKds));
+    public @ResponseBody ResponseEntity<?> prepareItemSupplyBase(@RequestBody DoneDrinkRequest request) {
+        return ResponseEntity.ok(drinkService.doneDrink(request));
     }
 }

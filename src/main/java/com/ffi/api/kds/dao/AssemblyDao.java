@@ -36,4 +36,13 @@ public interface AssemblyDao {
      * @author <a href="https://www.linkedin.com/in/muhammad-dani-ramadhan-645356203">Dani Ramadhan</a> 
      */
     public PrepareItemSupplyBaseRequest prepareItemSupplyBase(PrepareItemSupplyBaseRequest e);
+
+/**
+     * Retrieves and displays the queue pending orders where status kds_item_detail is 'P'.
+     * 
+     * @return A Map where the keys are strings representing the order details and the values are objects.
+     *         <p>Note: The structure of the map should be defined as <pre>Map&lt;String, Object&gt;</pre>
+     * @author <a href="https://www.linkedin.com/in/muhammad-dani-ramadhan-645356203">Dani Ramadhan</a> 
+     */
+    public List<Map<String, Object>> queuePending();
 }

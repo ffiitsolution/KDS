@@ -46,4 +46,9 @@ public class AssemblyController {
     public @ResponseBody ResponseEntity<?> prepareItemSupplyBase(@RequestBody @Valid PrepareItemSupplyBaseRequest itemKds) {
         return ResponseEntity.ok(assemblyService.prepareItemSupplyBase(itemKds));
     }
+
+    @GetMapping(value = "queue-pending")
+    public @ResponseBody ResponseEntity<?> queuePending() {
+        return ResponseEntity.ok(assemblyService.queuePending());
+    }
 }

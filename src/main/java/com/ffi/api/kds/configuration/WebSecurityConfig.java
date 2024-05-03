@@ -41,7 +41,8 @@ public class WebSecurityConfig {
         http.csrf(crsf -> crsf.disable())
                 .cors(cors -> corsConfigurationSource())
                 .authorizeHttpRequests(
-                        u -> u.antMatchers("/swagger-ui/**", "/v3/api-docs/**", "/actuator/**", "/version", "/")
+                        u -> u.antMatchers("/swagger-ui/**", "/v3/api-docs/**", "/actuator/**", "/version", "/",
+                                "/ws/**")
                                 .permitAll().anyRequest().authenticated())
                 .httpBasic(basic -> Customizer.withDefaults())
                 .formLogin(form -> form.disable())
