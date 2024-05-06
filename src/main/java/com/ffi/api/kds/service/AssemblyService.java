@@ -32,4 +32,8 @@ public class AssemblyService {
     public List<Map<String, Object>> queuePending() {
         return assemblyDao.queuePending();
     }
+
+    public List<Map<String, Object>> historyAssembly() {
+        return assemblyDao.historyAssembly();
+    }
 }

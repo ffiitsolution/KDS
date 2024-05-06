@@ -47,8 +47,13 @@ public class AssemblyController {
         return ResponseEntity.ok(assemblyService.prepareItemSupplyBase(itemKds));
     }
 
-    @GetMapping(value = "queue-pending")
+    @GetMapping(value = "/queue-pending")
     public @ResponseBody ResponseEntity<?> queuePending() {
         return ResponseEntity.ok(assemblyService.queuePending());
+    }
+
+    @GetMapping(value = "/history")
+    public @ResponseBody ResponseEntity<?> historyAssembly() {
+        return ResponseEntity.ok(assemblyService.historyAssembly());
     }
 }

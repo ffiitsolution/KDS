@@ -48,9 +48,9 @@ public class AssemblyDaoImpl implements AssemblyDao {
                 this.linePos = linePos;
                 if (Objects.equals("0", linePos)) {
                         orderType = "ETA";
-                    } else if (Objects.equals("3", linePos)) {
+                } else if (Objects.equals("3", linePos)) {
                         orderType = "DRT";
-                    }
+                }
         }
 
         @Override
@@ -84,7 +84,7 @@ public class AssemblyDaoImpl implements AssemblyDao {
                                 + "        AND MG.VALUE NOT IN ('99') AND TKH.ASSEMBLY_LINE_CODE = '" + linePos + "' "
                                 + " ORDER BY TKH.START_TIME ASC, TKH.BILL_NO, TKHI.ITEM_SEQ, TKHID.ITEM_DETAIL_SEQ ";
                 System.out.println(queueQuery);
-                                List<Map<String, Object>> queueResult = jdbcTemplate.query(queueQuery, new DynamicRowMapper());
+                List<Map<String, Object>> queueResult = jdbcTemplate.query(queueQuery, new DynamicRowMapper());
                 List<String> groupByHeader = new LinkedList<>();
                 groupByHeader.add("kdsNo");
                 groupByHeader.add("orderType");
@@ -264,10 +264,25 @@ public class AssemblyDaoImpl implements AssemblyDao {
         public List<Map<String, Object>> queuePending() {
                 // got query from pak asep, writed by Dani
                 String pendingQuery = "SELECT a.MENU_ITEM_CODE, a.pos_code, b.kds_no,c.DESCRIPTION, a.TRANS_TYPE , a.ITEM_QTY "
-                + "  FROM T_KDS_ITEM_DETAIL a LEFT JOIN T_KDS_HEADER b ON a.BILL_NO=b.BILL_NO "
-                + " LEFT JOIN m_global c ON a.MENU_ITEM_CODE = c.CODE AND c.COND ='ITEM' WHERE a.item_status='P' "
-                + " AND b.ASSEMBLY_LINE_CODE ='"+linePos+"' AND b.ORDER_TYPE = '"+orderType+"' ORDER BY to_number(kds_no) ";
+                                + "  FROM T_KDS_ITEM_DETAIL a LEFT JOIN T_KDS_HEADER b ON a.BILL_NO=b.BILL_NO "
+                                + " LEFT JOIN m_global c ON a.MENU_ITEM_CODE = c.CODE AND c.COND ='ITEM' WHERE a.item_status='P' "
+                                + " AND b.ASSEMBLY_LINE_CODE ='" + linePos + "' AND b.ORDER_TYPE = '" + orderType
+                                + "' ORDER BY to_number(kds_no) ";
 
                 return jdbcTemplate.query(pendingQuery, new DynamicRowMapper());
+        }
+
+        @Override
+        public List<Map<String, Object>> historyAssembly() {
+                String historyAssemblyQuery = "SELECT TKH.OUTLET_CODE, TKH.POS_CODE, TKH.KDS_NO, TKH.BILL_NO, "
+                                + "       TKH.DAY_SEQ, TKH.TRANS_DATE, MG3.DESCRIPTION AS ORDER_TYPE_DESC, "
+                                + "       TKH.ORDER_TYPE, TKH.TRANS_TYPE BILL_TRANS_TYPE, NVL(TKH.NOTES, '') NOTES "
+                                + " FROM T_KDS_HEADER TKH "
+                                + " LEFT JOIN M_GLOBAL MG3 ON TKH.ORDER_TYPE = MG3.CODE AND MG3.COND = 'ORDER_TYPE' "
+                                + " WHERE TKH.OUTLET_CODE = '0208' AND TKH.ASSEMBLY_STATUS = 'AF' "
+                                + "        AND TKH.ASSEMBLY_LINE_CODE = '0'  "
+                                + " ORDER BY to_number(TKH.KDS_NO) DESC, TKH.START_TIME, TKH.BILL_NO ";
+
+                return jdbcTemplate.query(historyAssemblyQuery, new DynamicRowMapper());
         }
 }
