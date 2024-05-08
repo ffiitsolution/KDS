@@ -1,9 +1,15 @@
 package com.ffi.api.kds.dto;
 
+import javax.validation.constraints.NotNull;
+
 public class DoneDrinkRequest {
+    @NotNull(message = "billNo is required")
     private String billNo;
+    @NotNull(message = "menuItemCode is required")
     private String menuItemCode;
+    @NotNull(message = "posCode is required")
     private String posCode;
+    @NotNull(message = "transType is required")
     private String transType;
     
     public String getBillNo() {

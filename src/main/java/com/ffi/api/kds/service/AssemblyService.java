@@ -6,7 +6,7 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 import com.ffi.api.kds.dao.AssemblyDao;
-import com.ffi.api.kds.dto.DoneAssemblyRequest;
+import com.ffi.api.kds.dto.KdsHeaderRequest;
 import com.ffi.api.kds.dto.PrepareItemSupplyBaseRequest;
 
 @Service
@@ -21,7 +21,7 @@ public class AssemblyService {
         return assemblyDao.queueOrder();
     }
 
-    public DoneAssemblyRequest doneAssembly(DoneAssemblyRequest kds) {
+    public KdsHeaderRequest doneAssembly(KdsHeaderRequest kds) {
         return assemblyDao.doneAssembly(kds);
     }
 

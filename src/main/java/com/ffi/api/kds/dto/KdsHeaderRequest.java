@@ -1,9 +1,15 @@
 package com.ffi.api.kds.dto;
 
-public class DoneAssemblyRequest {
+import javax.validation.constraints.NotNull;
+
+public class KdsHeaderRequest {
+    @NotNull(message = "billNo is required")
     private String billNo;
+    @NotNull(message = "kdsNo is required")
     private String kdsNo;
+    @NotNull(message = "pocCode is required")
     private String posCode;
+    @NotNull(message = "daySeq is required")
     private Long daySeq;
     
     public String getBillNo() {
@@ -32,7 +38,7 @@ public class DoneAssemblyRequest {
     }
     @Override
     public String toString() {
-        return "DoneAssemblyRequest [billNo=" + billNo + ", kdsNo=" + kdsNo + ", posCode=" + posCode + ", daySeq="
+        return "KdsHeaderRequest [billNo=" + billNo + ", kdsNo=" + kdsNo + ", posCode=" + posCode + ", daySeq="
                 + daySeq + "]";
     }
     

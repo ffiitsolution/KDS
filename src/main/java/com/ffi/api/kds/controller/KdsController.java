@@ -49,7 +49,9 @@ public class KdsController {
     @GetMapping(value = "/refresh-notif")
     public @ResponseBody void testNotifAssemblyRefresh() {
         this.socketTriggerService.refreshAssembly(UUID.randomUUID().toString()+": testing assembly refresh..");
-        this.socketTriggerService.refreshSupplyBase(UUID.randomUUID().toString()+": testing supply base refresh..");
+        this.socketTriggerService.refreshSupplyBaseFried(UUID.randomUUID().toString()+": testing supplybase fried refresh..");
+        this.socketTriggerService.refreshSupplyBaseBurger(UUID.randomUUID().toString()+": testing supplybase burger refresh..");
+        this.socketTriggerService.refreshSupplyBasePasta(UUID.randomUUID().toString()+": testing supplybase pasta refresh..");
         this.socketTriggerService.refreshDrinkBib(UUID.randomUUID().toString()+": testing drink bib refresh..");
         this.socketTriggerService.refreshDrinkIceCream(UUID.randomUUID().toString()+": testing drink icecream refresh..");
         this.socketTriggerService.refreshDrinkOther(UUID.randomUUID().toString()+": testing drink other refresh..");

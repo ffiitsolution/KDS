@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 
-import com.ffi.api.kds.dto.DoneAssemblyRequest;
+import com.ffi.api.kds.dto.KdsHeaderRequest;
 import com.ffi.api.kds.dto.PrepareItemSupplyBaseRequest;
 
 @Repository
@@ -22,11 +22,11 @@ public interface AssemblyDao {
     /**
      * Mark the queue orders to done assembly.
      * 
-     * @return A Object DoneAssemblyRequest.
-     *         <p>Note: DoneAssemblyRequest define in package <pre>com.ffi.api.kds.dto.DoneAssemblyRequest</pre>
+     * @return A Object KdsHeaderRequest.
+     *         <p>Note: KdsHeaderRequest define in package <pre>com.ffi.api.kds.dto.KdsHeaderRequest</pre>
      * @author <a href="https://www.linkedin.com/in/muhammad-dani-ramadhan-645356203">Dani Ramadhan</a> 
      */
-    public DoneAssemblyRequest doneAssembly(DoneAssemblyRequest e);
+    public KdsHeaderRequest doneAssembly(KdsHeaderRequest e);
 
     /**
      * Mark item ready to create in supply base.

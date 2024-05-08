@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -21,9 +20,6 @@ import com.ffi.api.kds.util.DynamicRowMapper;
 public class DrinkDaoImpl implements DrinkDao {
 
     private String linePos;
-
-    private String orderType;
-
     @Value("${app.outletCode}")
     private String outletCode;
 
@@ -36,11 +32,6 @@ public class DrinkDaoImpl implements DrinkDao {
         this.jdbcTemplate = jdbcTemplate;
         this.socketTriggerService = socketTriggerService;
         this.linePos = linePos;
-        if (Objects.equals("0", linePos)) {
-            orderType = "ETA";
-        } else if (Objects.equals("3", linePos)) {
-            orderType = "DRT";
-        }
     }
 
     @Override
@@ -51,8 +42,8 @@ public class DrinkDaoImpl implements DrinkDao {
                 + "     AND A.POS_CODE = B.POS_CODE AND A.DAY_SEQ = B.DAY_SEQ AND A.BILL_NO = B.BILL_NO "
                 + " JOIN T_KDS_ITEM_DETAIL C ON A.OUTLET_CODE = C.OUTLET_CODE "
                 + "     AND A.POS_CODE = C.POS_CODE AND A.DAY_SEQ = C.DAY_SEQ AND A.BILL_NO = C.BILL_NO AND B.ITEM_SEQ = C.ITEM_SEQ "
-                + " WHERE A.ASSEMBLY_LINE_CODE = '" + linePos + "' AND A.ORDER_TYPE = '" + orderType
-                + "' AND A.OUTLET_CODE = '" + outletCode + "' AND C.ITEM_FLOW = 'D' "
+                + " WHERE A.ASSEMBLY_LINE_CODE = '" + linePos + "' "
+                + " AND A.OUTLET_CODE = '" + outletCode + "' AND C.ITEM_FLOW = 'D' "
                 + "     AND ITEM_STATUS <> 'F' GROUP BY A.START_TIME, C.POS_CODE, "
                 + "     A.KDS_NO, C.BILL_NO,C.TRANS_TYPE, C.MENU_ITEM_CODE "
                 + " ORDER BY TO_NUMBER(A.KDS_NO), A.START_TIME,C.MENU_ITEM_CODE ASC) AA "
@@ -68,8 +59,8 @@ public class DrinkDaoImpl implements DrinkDao {
                 + "     AND A.POS_CODE = B.POS_CODE AND A.DAY_SEQ = B.DAY_SEQ AND A.BILL_NO = B.BILL_NO "
                 + " JOIN T_KDS_ITEM_DETAIL C ON A.OUTLET_CODE = C.OUTLET_CODE "
                 + "     AND A.POS_CODE = C.POS_CODE AND A.DAY_SEQ = C.DAY_SEQ AND A.BILL_NO = C.BILL_NO AND B.ITEM_SEQ = C.ITEM_SEQ "
-                + " WHERE A.ASSEMBLY_LINE_CODE = '" + linePos + "' AND A.ORDER_TYPE = '" + orderType
-                + "' AND A.OUTLET_CODE = '" + outletCode + "' AND C.ITEM_FLOW = 'O' "
+                + " WHERE A.ASSEMBLY_LINE_CODE = '" + linePos + "' "
+                + " AND A.OUTLET_CODE = '" + outletCode + "' AND C.ITEM_FLOW = 'O' "
                 + "     AND ITEM_STATUS <> 'F' GROUP BY A.START_TIME, C.POS_CODE, "
                 + "     A.KDS_NO, C.BILL_NO,C.TRANS_TYPE, C.MENU_ITEM_CODE "
                 + " ORDER BY TO_NUMBER(A.KDS_NO), A.START_TIME, C.MENU_ITEM_CODE ASC) AA "
@@ -85,8 +76,8 @@ public class DrinkDaoImpl implements DrinkDao {
                 + "     AND A.POS_CODE = B.POS_CODE AND A.DAY_SEQ = B.DAY_SEQ AND A.BILL_NO = B.BILL_NO "
                 + " JOIN T_KDS_ITEM_DETAIL C ON A.OUTLET_CODE = C.OUTLET_CODE "
                 + "     AND A.POS_CODE = C.POS_CODE AND A.DAY_SEQ = C.DAY_SEQ AND A.BILL_NO = C.BILL_NO AND B.ITEM_SEQ = C.ITEM_SEQ "
-                + " WHERE A.ASSEMBLY_LINE_CODE = '" + linePos + "' AND A.ORDER_TYPE = '" + orderType
-                + "' AND A.OUTLET_CODE = '" + outletCode + "' AND C.ITEM_FLOW = 'I' "
+                + " WHERE A.ASSEMBLY_LINE_CODE = '" + linePos + "' "
+                + " AND A.OUTLET_CODE = '" + outletCode + "' AND C.ITEM_FLOW = 'I' "
                 + "     AND ITEM_STATUS <> 'F' GROUP BY A.START_TIME, C.POS_CODE, "
                 + "     A.KDS_NO, C.BILL_NO,C.TRANS_TYPE, C.MENU_ITEM_CODE "
                 + " ORDER BY TO_NUMBER(A.KDS_NO), A.START_TIME, C.MENU_ITEM_CODE ASC) AA "

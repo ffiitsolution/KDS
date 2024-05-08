@@ -15,14 +15,26 @@ import com.ffi.api.kds.service.SocketTriggerService;
 public class KdsScheduler {
 
     private String linePos;
-    private String orderType;
     @Value("${app.outletCode}")
     private String outletCode;
 
+    // assembly
     private Integer assemblyQueueOrder = null;
+
+    // supplybase
+    private Integer supplyBaseFriedQueueOrder = null;
+    private Integer supplyBaseBurgerQueueOrder = null;
+    private Integer supplyBasePastaQueueOrder = null;
+
+    // drink
     private Integer drinkBibQueueOrder = null;
     private Integer drinkIceCreamQueueOrder = null;
     private Integer drinkOtherQueueOrder = null;
+
+    // pickup
+    private Integer pickupAfterAssemblyStatus = null;
+    private Integer pickupServeStatus = null;
+    private Integer pickupClaimUnclaimStatus = null;
 
     private final SocketTriggerService socketTriggerService;
     private final NamedParameterJdbcTemplate jdbcTemplate;
@@ -33,14 +45,9 @@ public class KdsScheduler {
         this.socketTriggerService = socketTriggerService;
         this.jdbcTemplate = jdbcTemplate;
         this.linePos = linePos;
-        if (Objects.equals("0", linePos)) {
-            orderType = "ETA";
-        } else if (Objects.equals("3", linePos)) {
-            orderType = "DRT";
-        }
     }
 
-    @Scheduled(fixedDelay = 1000)
+    @Scheduled(fixedDelay = 950)
     public void countAssemblyQueueOrder() {
         String countQueueQuery = "SELECT count(*) FROM T_KDS_HEADER TKH JOIN T_KDS_ITEM TKHI ON TKH.OUTLET_CODE = TKHI.OUTLET_CODE "
                 + " AND TKH.POS_CODE = TKHI.POS_CODE AND TKH.DAY_SEQ = TKHI.DAY_SEQ AND TKH.BILL_NO = TKHI.BILL_NO "
@@ -54,6 +61,8 @@ public class KdsScheduler {
         Integer countQueueResult = jdbcTemplate.queryForObject(countQueueQuery, new HashMap<>(), Integer.class);
         if (assemblyQueueOrder == null) {
             assemblyQueueOrder = countQueueResult;
+            System.out.println("LOG : initial message, refresh assembly..");
+            this.socketTriggerService.refreshAssembly(UUID.randomUUID().toString());
             return;
         }
         if (!Objects.equals(assemblyQueueOrder, countQueueResult)) {
@@ -63,75 +72,195 @@ public class KdsScheduler {
         }
     }
 
-    @Scheduled(fixedDelay = 1000)
+    @Scheduled(fixedDelay = 950)
+    public void countSupplyBaseFried() {
+        String countSBFriedQuery = "SELECT COALESCE (COUNT(*), 0) FROM T_KDS_ITEM_DETAIL A "
+                + " LEFT JOIN T_KDS_HEADER C ON A.BILL_NO = C.BILL_NO "
+                + " AND A.POS_CODE = C.POS_CODE AND A.DAY_SEQ = C.DAY_SEQ AND A.TRANS_DATE = C.TRANS_DATE "
+                + " JOIN M_GLOBAL D ON A.MENU_ITEM_CODE = D.CODE AND D.COND = 'ITEM' AND D.VALUE = 11 AND D.STATUS =  'A' "
+                + " WHERE A.ITEM_STATUS = 'P' AND A.OUTLET_CODE = '" + outletCode + "' AND C.ASSEMBLY_LINE_CODE='"
+                + linePos + "'";
+
+        Integer countQueueResult = jdbcTemplate.queryForObject(countSBFriedQuery, new HashMap<>(), Integer.class);
+        if (supplyBaseFriedQueueOrder == null) {
+            supplyBaseFriedQueueOrder = countQueueResult;
+            System.out.println("LOG : initial message, refresh supplybase fried..");
+            this.socketTriggerService.refreshSupplyBaseFried(UUID.randomUUID().toString());
+            return;
+        }
+        if (!Objects.equals(supplyBaseFriedQueueOrder, countQueueResult)) {
+            System.out.println("LOG : supplybase fried detected, refresh supplybase fried..");
+            supplyBaseFriedQueueOrder = countQueueResult;
+            this.socketTriggerService.refreshSupplyBaseFried(UUID.randomUUID().toString());
+        }
+    }
+
+    @Scheduled(fixedDelay = 950)
+    public void countSupplyBaseBurger() {
+        String countSBBurgerQuery = "SELECT COALESCE (COUNT(*), 0) FROM T_KDS_ITEM_DETAIL A "
+                + " LEFT JOIN T_KDS_HEADER C ON A.BILL_NO = C.BILL_NO "
+                + " AND A.POS_CODE = C.POS_CODE AND A.DAY_SEQ = C.DAY_SEQ AND A.TRANS_DATE = C.TRANS_DATE "
+                + " JOIN M_GLOBAL D ON A.MENU_ITEM_CODE = D.CODE AND D.COND = 'ITEM' AND D.VALUE = 12 AND D.STATUS =  'A' "
+                + " WHERE A.ITEM_STATUS = 'P' AND A.OUTLET_CODE = '" + outletCode + "' AND C.ASSEMBLY_LINE_CODE='"
+                + linePos + "'";
+
+        Integer countQueueResult = jdbcTemplate.queryForObject(countSBBurgerQuery, new HashMap<>(), Integer.class);
+        if (supplyBaseBurgerQueueOrder == null) {
+            supplyBaseBurgerQueueOrder = countQueueResult;
+            System.out.println("LOG : initial message, refresh supplybase burger..");
+            this.socketTriggerService.refreshSupplyBaseBurger(UUID.randomUUID().toString());
+            return;
+        }
+        if (!Objects.equals(supplyBaseBurgerQueueOrder, countQueueResult)) {
+            System.out.println("LOG : supplybase burger detected, refresh supplybase burger..");
+            supplyBaseBurgerQueueOrder = countQueueResult;
+            this.socketTriggerService.refreshSupplyBaseBurger(UUID.randomUUID().toString());
+        }
+    }
+
+    @Scheduled(fixedDelay = 950)
+    public void countSupplyBasePasta() {
+        String countSBPastaQuery = "SELECT COALESCE (COUNT(*), 0) FROM T_KDS_ITEM_DETAIL A "
+                + " LEFT JOIN T_KDS_HEADER C ON A.BILL_NO = C.BILL_NO "
+                + " AND A.POS_CODE = C.POS_CODE AND A.DAY_SEQ = C.DAY_SEQ AND A.TRANS_DATE = C.TRANS_DATE "
+                + " JOIN M_GLOBAL D ON A.MENU_ITEM_CODE = D.CODE AND D.COND = 'ITEM' AND D.VALUE = 13 AND D.STATUS =  'A' "
+                + " WHERE A.ITEM_STATUS = 'P' AND A.OUTLET_CODE = '" + outletCode + "' AND C.ASSEMBLY_LINE_CODE='"
+                + linePos + "'";
+        Integer countQueueResult = jdbcTemplate.queryForObject(countSBPastaQuery, new HashMap<>(), Integer.class);
+        if (supplyBasePastaQueueOrder == null) {
+            supplyBasePastaQueueOrder = countQueueResult;
+            System.out.println("LOG : initial message, refresh supplybase pasta..");
+            this.socketTriggerService.refreshSupplyBasePasta(UUID.randomUUID().toString());
+            return;
+        }
+        if (!Objects.equals(supplyBasePastaQueueOrder, countQueueResult)) {
+            System.out.println("LOG : supplybase pasta detected, refresh supplybase pasta..");
+            supplyBasePastaQueueOrder = countQueueResult;
+            this.socketTriggerService.refreshSupplyBasePasta(UUID.randomUUID().toString());
+        }
+    }
+
+    @Scheduled(fixedDelay = 950)
     public void countDrinkBibQueueOrder() {
-        String countDrinkBibQueueOrderQuery = "SELECT COUNT(*) "
+        String countDrinkBibQueueOrderQuery = "SELECT COALESCE(COUNT(*), 0) "
                 + " FROM T_KDS_HEADER A "
                 + " JOIN T_KDS_ITEM B ON A.OUTLET_CODE = B.OUTLET_CODE AND A.POS_CODE = B.POS_CODE "
                 + " AND A.DAY_SEQ = B.DAY_SEQ AND A.BILL_NO = B.BILL_NO "
                 + " JOIN T_KDS_ITEM_DETAIL C ON A.OUTLET_CODE = C.OUTLET_CODE "
                 + " AND A.POS_CODE = C.POS_CODE AND A.DAY_SEQ = C.DAY_SEQ "
                 + " AND A.BILL_NO = C.BILL_NO AND B.ITEM_SEQ = C.ITEM_SEQ "
-                + " WHERE A.ASSEMBLY_LINE_CODE = '" + linePos + "' AND A.ORDER_TYPE = '" + orderType + "' "
+                + " WHERE A.ASSEMBLY_LINE_CODE = '" + linePos + "' "
                 + " AND A.OUTLET_CODE = '" + outletCode + "' AND C.ITEM_FLOW = 'D' AND ITEM_STATUS <> 'F'";
 
         Integer countDrinkBibQueueOrderResult = jdbcTemplate.queryForObject(countDrinkBibQueueOrderQuery,
                 new HashMap<>(), Integer.class);
         if (drinkBibQueueOrder == null) {
             drinkBibQueueOrder = countDrinkBibQueueOrderResult;
+            System.out.println("LOG : initial message, refresh drink bib..");
+            this.socketTriggerService.refreshDrinkBib(UUID.randomUUID().toString());
             return;
         }
-        if (!Objects.equals(drinkBibQueueOrder, countDrinkBibQueueOrderResult)) {
+        if (!Objects.equals(this.drinkBibQueueOrder, countDrinkBibQueueOrderResult)) {
             System.out.println("LOG : bib drink detected, refresh drink bib..");
-            drinkBibQueueOrder = countDrinkBibQueueOrderResult;
-            this.socketTriggerService.refreshAssembly(UUID.randomUUID().toString());
+            this.drinkBibQueueOrder = null;
+            this.drinkBibQueueOrder = countDrinkBibQueueOrderResult;
+            this.socketTriggerService.refreshDrinkBib(UUID.randomUUID().toString());
         }
     }
 
+    @Scheduled(fixedDelay = 950)
     public void countDrinkIceCreamQueueOrder() {
-        String countDrinkIceCreamQueueOrderQuery = "SELECT COUNT(*) "
+        String countDrinkIceCreamQueueOrderQuery = "SELECT COALESCE(COUNT(*),0) "
                 + " FROM T_KDS_HEADER A "
                 + " JOIN T_KDS_ITEM B ON A.OUTLET_CODE = B.OUTLET_CODE AND A.POS_CODE = B.POS_CODE "
                 + " AND A.DAY_SEQ = B.DAY_SEQ AND A.BILL_NO = B.BILL_NO "
                 + " JOIN T_KDS_ITEM_DETAIL C ON A.OUTLET_CODE = C.OUTLET_CODE "
                 + " AND A.POS_CODE = C.POS_CODE AND A.DAY_SEQ = C.DAY_SEQ "
                 + " AND A.BILL_NO = C.BILL_NO AND B.ITEM_SEQ = C.ITEM_SEQ "
-                + " WHERE A.ASSEMBLY_LINE_CODE = '" + linePos + "' AND A.ORDER_TYPE = '" + orderType + "' "
+                + " WHERE A.ASSEMBLY_LINE_CODE = '" + linePos + "' "
                 + " AND A.OUTLET_CODE = '" + outletCode + "' AND C.ITEM_FLOW = 'O' AND ITEM_STATUS <> 'F'";
         Integer countDrinkIceCreamQueueOrderResult = jdbcTemplate.queryForObject(countDrinkIceCreamQueueOrderQuery,
                 new HashMap<>(), Integer.class);
         if (drinkIceCreamQueueOrder == null) {
             drinkIceCreamQueueOrder = countDrinkIceCreamQueueOrderResult;
+            System.out.println("LOG : initial message, refresh drink ice cream..");
+            this.socketTriggerService.refreshDrinkIceCream(UUID.randomUUID().toString());
             return;
         }
-        if (!Objects.equals(drinkBibQueueOrder, countDrinkIceCreamQueueOrderResult)) {
+        if (!Objects.equals(drinkIceCreamQueueOrder, countDrinkIceCreamQueueOrderResult)) {
             System.out.println("LOG : ice cream drink detected, refresh drink ice cream..");
-            drinkBibQueueOrder = countDrinkIceCreamQueueOrderResult;
-            this.socketTriggerService.refreshAssembly(UUID.randomUUID().toString());
+            drinkIceCreamQueueOrder = countDrinkIceCreamQueueOrderResult;
+            this.socketTriggerService.refreshDrinkIceCream(UUID.randomUUID().toString());
         }
     }
 
+    @Scheduled(fixedDelay = 950)
     public void otherQueueOrder() {
-        String countDrinkOtherQueueOrderQuery = "SELECT COUNT(*) "
+        String countDrinkOtherQueueOrderQuery = "SELECT COALESCE(COUNT(*), 0) "
                 + " FROM T_KDS_HEADER A "
                 + " JOIN T_KDS_ITEM B ON A.OUTLET_CODE = B.OUTLET_CODE AND A.POS_CODE = B.POS_CODE "
                 + " AND A.DAY_SEQ = B.DAY_SEQ AND A.BILL_NO = B.BILL_NO "
                 + " JOIN T_KDS_ITEM_DETAIL C ON A.OUTLET_CODE = C.OUTLET_CODE "
                 + " AND A.POS_CODE = C.POS_CODE AND A.DAY_SEQ = C.DAY_SEQ "
                 + " AND A.BILL_NO = C.BILL_NO AND B.ITEM_SEQ = C.ITEM_SEQ "
-                + " WHERE A.ASSEMBLY_LINE_CODE = '" + linePos + "' AND A.ORDER_TYPE = '" + orderType + "' "
+                + " WHERE A.ASSEMBLY_LINE_CODE = '" + linePos + "' "
                 + " AND A.OUTLET_CODE = '" + outletCode + "' AND C.ITEM_FLOW = 'I' AND ITEM_STATUS <> 'F'";
 
         Integer countDrinkOtherOrderResult = jdbcTemplate.queryForObject(countDrinkOtherQueueOrderQuery,
                 new HashMap<>(), Integer.class);
         if (drinkOtherQueueOrder == null) {
             drinkOtherQueueOrder = countDrinkOtherOrderResult;
+            System.out.println("LOG : initial message, refresh drink other..");
+            this.socketTriggerService.refreshDrinkOther(UUID.randomUUID().toString());
             return;
         }
         if (!Objects.equals(drinkOtherQueueOrder, countDrinkOtherOrderResult)) {
             System.out.println("LOG : other drink detected, refresh drink other..");
             drinkOtherQueueOrder = countDrinkOtherOrderResult;
-            this.socketTriggerService.refreshAssembly(UUID.randomUUID().toString());
+            this.socketTriggerService.refreshDrinkOther(UUID.randomUUID().toString());
+        }
+    }
+
+    @Scheduled(fixedDelay = 950)
+    public void countPickupQueue() {
+        // count after assembly
+        String countAfterAssemblyStatus = "SELECT COALESCE (COUNT(*),0) FROM T_KDS_HEADER tkh WHERE ASSEMBLY_STATUS <> 'AQ' "
+                + " AND DISPATCH_STATUS = 'DP' AND PICKUP_STATUS=NULL AND ASSEMBLY_LINE_CODE = '" + linePos
+                + "' AND OUTLET_CODE = '" + outletCode + "' ";
+        Integer countPickupAfterAssemblyResult = jdbcTemplate.queryForObject(countAfterAssemblyStatus,
+                new HashMap<>(), Integer.class);
+
+        // count serve status
+        String countServeStatus = "SELECT COALESCE (COUNT(*),0) FROM T_KDS_HEADER tkh WHERE ASSEMBLY_STATUS <> 'AQ' "
+                + " AND DISPATCH_STATUS = 'DF' AND PICKUP_STATUS='SRV' AND ASSEMBLY_LINE_CODE = '" + linePos
+                + "' AND OUTLET_CODE = '" + outletCode + "' ";
+        Integer countPickupServeResult = jdbcTemplate.queryForObject(countServeStatus,
+                new HashMap<>(), Integer.class);
+
+        String countClaimUnclaimStatus = "SELECT COALESCE (COUNT(*),0) FROM T_KDS_HEADER tkh WHERE ASSEMBLY_STATUS <> 'AQ' "
+                + " AND PICKUP_STATUS IN ('CLM', 'UCL') AND ASSEMBLY_LINE_CODE = '" + linePos + "' AND OUTLET_CODE = '"
+                + outletCode + "' ";
+        Integer countPickupClaimUnclaimResult = jdbcTemplate.queryForObject(countClaimUnclaimStatus,
+                new HashMap<>(), Integer.class);
+
+        if (pickupAfterAssemblyStatus == null && pickupServeStatus == null && pickupClaimUnclaimStatus == null) {
+            pickupAfterAssemblyStatus = countPickupAfterAssemblyResult;
+            pickupServeStatus = countPickupServeResult;
+            pickupClaimUnclaimStatus = countPickupClaimUnclaimResult;
+            System.out.println("LOG : initial message, refresh pickup..");
+            this.socketTriggerService.refreshPickup(UUID.randomUUID().toString());
+            return;
+        }
+
+        if (!Objects.equals(pickupAfterAssemblyStatus, countPickupAfterAssemblyResult)
+                || !Objects.equals(pickupServeStatus, countPickupServeResult)
+                || !Objects.equals(pickupClaimUnclaimStatus, countPickupClaimUnclaimResult)) {
+            System.out.println("LOG : pickup after assembly detected, refresh pickup..");
+            pickupAfterAssemblyStatus = countPickupAfterAssemblyResult;
+            pickupServeStatus = countPickupServeResult;
+            pickupClaimUnclaimStatus = countPickupClaimUnclaimResult;
+            this.socketTriggerService.refreshPickup(UUID.randomUUID().toString());
+            return;
         }
     }
 }

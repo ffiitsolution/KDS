@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -19,6 +20,10 @@ import com.ffi.api.kds.util.DynamicRowMapper;
 @Repository
 public class SupplyBaseDaoImpl implements SupplyBaseDao {
 
+        private String linePos;
+
+        // private String orderType;
+
         @Value("${app.outletCode}")
         private String outletCode;
 
@@ -29,9 +34,16 @@ public class SupplyBaseDaoImpl implements SupplyBaseDao {
         private final SocketTriggerService socketTriggerService;
 
         public SupplyBaseDaoImpl(final NamedParameterJdbcTemplate jdbcTemplate,
-                        final SocketTriggerService socketTriggerService) {
+                        final SocketTriggerService socketTriggerService,
+                        final @Value("${app.line.pos}") String linePos) {
                 this.jdbcTemplate = jdbcTemplate;
                 this.socketTriggerService = socketTriggerService;
+                this.linePos = linePos;
+                // if (Objects.equals("0", linePos)) {
+                //         orderType = "ETA";
+                // } else if (Objects.equals("3", linePos)) {
+                //         orderType = "DRT";
+                // }
         }
 
         @Override
@@ -41,8 +53,10 @@ public class SupplyBaseDaoImpl implements SupplyBaseDao {
                                 + " AND A.DAY_SEQ = B.DAY_SEQ AND A.TRANS_DATE = B.TRANS_DATE AND A.ITEM_SEQ = B.ITEM_SEQ "
                                 + " LEFT JOIN T_KDS_HEADER C ON A.BILL_NO = C.BILL_NO "
                                 + " AND A.POS_CODE = C.POS_CODE AND A.DAY_SEQ = C.DAY_SEQ AND A.TRANS_DATE = C.TRANS_DATE "
-                                + " JOIN M_GLOBAL D ON A.MENU_ITEM_CODE = D.CODE AND D.COND = 'ITEM' AND D.VALUE = 11 AND D.STATUS =  'A'"
-                                + " WHERE A.ITEM_STATUS = 'P' ORDER BY to_number(C.KDS_NO), A.ITEM_SEQ , A.ITEM_DETAIL_SEQ";
+                                + " JOIN M_GLOBAL D ON A.MENU_ITEM_CODE = D.CODE AND D.COND = 'ITEM' AND D.VALUE = 11 AND D.STATUS =  'A' "
+                                + " WHERE A.ITEM_STATUS = 'P' AND A.OUTLET_CODE = '" + outletCode
+                                + "' AND C.ASSEMBLY_LINE_CODE='" + linePos + "' "
+                                + " ORDER BY to_number(C.KDS_NO), A.ITEM_SEQ , A.ITEM_DETAIL_SEQ";
                 return jdbcTemplate.query(friedQuery, new HashMap<>(),
                                 new DynamicRowMapper());
         }
@@ -54,8 +68,10 @@ public class SupplyBaseDaoImpl implements SupplyBaseDao {
                                 + " AND A.DAY_SEQ = B.DAY_SEQ AND A.TRANS_DATE = B.TRANS_DATE AND A.ITEM_SEQ = B.ITEM_SEQ "
                                 + " LEFT JOIN T_KDS_HEADER C ON A.BILL_NO = C.BILL_NO "
                                 + " AND A.POS_CODE = C.POS_CODE AND A.DAY_SEQ = C.DAY_SEQ AND A.TRANS_DATE = C.TRANS_DATE "
-                                + " JOIN M_GLOBAL D ON A.MENU_ITEM_CODE = D.CODE AND D.COND = 'ITEM' AND D.VALUE = 12 AND D.STATUS =  'A'"
-                                + " WHERE A.ITEM_STATUS = 'P' ORDER BY to_number(C.KDS_NO), A.ITEM_SEQ , A.ITEM_DETAIL_SEQ";
+                                + " JOIN M_GLOBAL D ON A.MENU_ITEM_CODE = D.CODE AND D.COND = 'ITEM' AND D.VALUE = 12 AND D.STATUS = 'A' "
+                                + " WHERE A.ITEM_STATUS = 'P' AND A.OUTLET_CODE = '" + outletCode
+                                + "' AND C.ASSEMBLY_LINE_CODE='" + linePos + "' "
+                                + " ORDER BY to_number(C.KDS_NO), A.ITEM_SEQ , A.ITEM_DETAIL_SEQ";
                 return jdbcTemplate.query(pastaQuery, new HashMap<>(),
                                 new DynamicRowMapper());
         }
@@ -68,7 +84,9 @@ public class SupplyBaseDaoImpl implements SupplyBaseDao {
                                 + " LEFT JOIN T_KDS_HEADER C ON A.BILL_NO = C.BILL_NO "
                                 + " AND A.POS_CODE = C.POS_CODE AND A.DAY_SEQ = C.DAY_SEQ AND A.TRANS_DATE = C.TRANS_DATE "
                                 + " JOIN M_GLOBAL D ON A.MENU_ITEM_CODE = D.CODE AND D.COND = 'ITEM' AND D.VALUE = 13 AND D.STATUS =  'A'"
-                                + " WHERE A.ITEM_STATUS = 'P' ORDER BY to_number(C.KDS_NO), A.ITEM_SEQ , A.ITEM_DETAIL_SEQ";
+                                + " WHERE A.ITEM_STATUS = 'P' AND A.OUTLET_CODE = '" + outletCode
+                                + "' AND C.ASSEMBLY_LINE_CODE='" + linePos + "' "
+                                + " ORDER BY to_number(C.KDS_NO), A.ITEM_SEQ , A.ITEM_DETAIL_SEQ";
                 return jdbcTemplate.query(pastaQuery, new HashMap<>(),
                                 new DynamicRowMapper());
         }
@@ -92,6 +110,7 @@ public class SupplyBaseDaoImpl implements SupplyBaseDao {
                                 .addValue("outletCode", outletCode)
                                 .addValue("timeString", timeFormatter.format(timestamp))
                                 .addValue("timestamp", timestamp));
+                this.socketTriggerService.refreshAssembly(UUID.randomUUID().toString());
                 return request;
         }
 }

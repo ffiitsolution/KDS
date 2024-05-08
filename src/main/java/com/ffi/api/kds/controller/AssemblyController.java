@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ffi.api.kds.dto.DoneAssemblyRequest;
+import com.ffi.api.kds.dto.KdsHeaderRequest;
 import com.ffi.api.kds.dto.PrepareItemSupplyBaseRequest;
 import com.ffi.api.kds.service.AssemblyService;
 
@@ -38,7 +38,7 @@ public class AssemblyController {
     }
 
     @PutMapping(value = "/done")
-    public @ResponseBody ResponseEntity<?> doneAssembly(@RequestBody DoneAssemblyRequest kds) {
+    public @ResponseBody ResponseEntity<?> doneAssembly(@RequestBody KdsHeaderRequest kds) {
         return ResponseEntity.ok(assemblyService.doneAssembly(kds));
     }
 

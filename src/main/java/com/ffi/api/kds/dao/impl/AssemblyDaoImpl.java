@@ -18,8 +18,9 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.ffi.api.kds.dao.AssemblyDao;
-import com.ffi.api.kds.dto.DoneAssemblyRequest;
+import com.ffi.api.kds.dto.KdsHeaderRequest;
 import com.ffi.api.kds.dto.PrepareItemSupplyBaseRequest;
+import com.ffi.api.kds.service.KdsService;
 import com.ffi.api.kds.service.SocketTriggerService;
 import com.ffi.api.kds.util.DynamicRowMapper;
 import com.ffi.api.kds.util.TransformGroupingData;
@@ -29,28 +30,22 @@ public class AssemblyDaoImpl implements AssemblyDao {
 
         @Value("${app.outletCode}")
         private String outletCode;
-
         private String linePos;
-
-        private String orderType;
-
         @Value("${app.charge.take.away.plu}")
         private String ctaPlu;
 
         private final NamedParameterJdbcTemplate jdbcTemplate;
         private final SocketTriggerService socketTriggerService;
+        private KdsService kdsService;
 
         public AssemblyDaoImpl(final NamedParameterJdbcTemplate jdbcTemplate,
                         final SocketTriggerService socketTriggerService,
-                        final @Value("${app.line.pos}") String linePos) {
+                        final @Value("${app.line.pos}") String linePos,
+                        final KdsService kdsService) {
                 this.jdbcTemplate = jdbcTemplate;
                 this.socketTriggerService = socketTriggerService;
                 this.linePos = linePos;
-                if (Objects.equals("0", linePos)) {
-                        orderType = "ETA";
-                } else if (Objects.equals("3", linePos)) {
-                        orderType = "DRT";
-                }
+                this.kdsService = kdsService;
         }
 
         @Override
@@ -210,11 +205,11 @@ public class AssemblyDaoImpl implements AssemblyDao {
         }
 
         @Override
-        public DoneAssemblyRequest doneAssembly(DoneAssemblyRequest kds) {
+        public KdsHeaderRequest doneAssembly(KdsHeaderRequest kds) {
                 String doneAssemblyQuery = " UPDATE T_KDS_HEADER SET "
                                 + " ASSEMBLY_STATUS = 'AF', ASSEMBLY_END_TIME = :timestamp, "
                                 + " DISPATCH_STATUS = 'DP', DISPATCH_START_TIME = :timestamp, "
-                                + " PICKUP_STATUS='SRV', PICKUP_START_TIME = :timestamp, "
+                                + " PICKUP_START_TIME = :timestamp, FINISH_TIME= :timestamp, "
                                 + " DATE_UPD = :timestamp, TIME_UPD=:timeString, USER_UPD=NULL "
                                 + "     WHERE BILL_NO = :billNo "
                                 + "     AND KDS_NO = :kdsNo "
@@ -224,14 +219,13 @@ public class AssemblyDaoImpl implements AssemblyDao {
                                 + "     AND ASSEMBLY_STATUS = 'AQ'";
 
                 Date timestamp = new Date();
-                SimpleDateFormat timeFormatter = new SimpleDateFormat("HHmmss");
                 jdbcTemplate.update(doneAssemblyQuery, new MapSqlParameterSource()
                                 .addValue("billNo", kds.getBillNo())
                                 .addValue("kdsNo", kds.getKdsNo())
                                 .addValue("posCode", kds.getPosCode())
                                 .addValue("daySeq", kds.getDaySeq())
                                 .addValue("outletCode", outletCode)
-                                .addValue("timeString", timeFormatter.format(timestamp))
+                                .addValue("timeString", KdsService.timeformatHHmmss.format(timestamp))
                                 .addValue("timestamp", timestamp));
                 return kds;
         }
@@ -256,7 +250,9 @@ public class AssemblyDaoImpl implements AssemblyDao {
                                 .addValue("timestamp", timestamp));
 
                 socketTriggerService.refreshAssembly(UUID.randomUUID().toString());
-                socketTriggerService.refreshSupplyBase(UUID.randomUUID().toString());
+                socketTriggerService.refreshSupplyBaseFried(UUID.randomUUID().toString());
+                socketTriggerService.refreshSupplyBaseBurger(UUID.randomUUID().toString());
+                socketTriggerService.refreshSupplyBasePasta(UUID.randomUUID().toString());
                 return request;
         }
 
@@ -266,21 +262,22 @@ public class AssemblyDaoImpl implements AssemblyDao {
                 String pendingQuery = "SELECT a.MENU_ITEM_CODE, a.pos_code, b.kds_no,c.DESCRIPTION, a.TRANS_TYPE , a.ITEM_QTY "
                                 + "  FROM T_KDS_ITEM_DETAIL a LEFT JOIN T_KDS_HEADER b ON a.BILL_NO=b.BILL_NO "
                                 + " LEFT JOIN m_global c ON a.MENU_ITEM_CODE = c.CODE AND c.COND ='ITEM' WHERE a.item_status='P' "
-                                + " AND b.ASSEMBLY_LINE_CODE ='" + linePos + "' AND b.ORDER_TYPE = '" + orderType
-                                + "' ORDER BY to_number(kds_no) ";
+                                + " AND b.ASSEMBLY_LINE_CODE ='" + linePos + "' "
+                                + " ORDER BY to_number(kds_no) ";
 
                 return jdbcTemplate.query(pendingQuery, new DynamicRowMapper());
         }
 
         @Override
         public List<Map<String, Object>> historyAssembly() {
+                String transDate = KdsService.dateformatDDMMMYYYY.format(this.kdsService.getAppDate());
                 String historyAssemblyQuery = "SELECT TKH.OUTLET_CODE, TKH.POS_CODE, TKH.KDS_NO, TKH.BILL_NO, "
                                 + "       TKH.DAY_SEQ, TKH.TRANS_DATE, MG3.DESCRIPTION AS ORDER_TYPE_DESC, "
                                 + "       TKH.ORDER_TYPE, TKH.TRANS_TYPE BILL_TRANS_TYPE, NVL(TKH.NOTES, '') NOTES "
                                 + " FROM T_KDS_HEADER TKH "
                                 + " LEFT JOIN M_GLOBAL MG3 ON TKH.ORDER_TYPE = MG3.CODE AND MG3.COND = 'ORDER_TYPE' "
                                 + " WHERE TKH.OUTLET_CODE = '0208' AND TKH.ASSEMBLY_STATUS = 'AF' "
-                                + "        AND TKH.ASSEMBLY_LINE_CODE = '0'  "
+                                + "        AND TKH.ASSEMBLY_LINE_CODE = '0' AND TKH.TRANS_DATE='"+transDate+"' "
                                 + " ORDER BY to_number(TKH.KDS_NO) DESC, TKH.START_TIME, TKH.BILL_NO ";
 
                 return jdbcTemplate.query(historyAssemblyQuery, new DynamicRowMapper());
