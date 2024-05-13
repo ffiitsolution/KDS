@@ -38,7 +38,7 @@ public class AssemblyController {
     }
 
     @PutMapping(value = "/done")
-    public @ResponseBody ResponseEntity<?> doneAssembly(@RequestBody KdsHeaderRequest kds) {
+    public @ResponseBody ResponseEntity<?> doneAssembly(@RequestBody @Valid KdsHeaderRequest kds) {
         return ResponseEntity.ok(assemblyService.doneAssembly(kds));
     }
 
@@ -55,5 +55,10 @@ public class AssemblyController {
     @GetMapping(value = "/history")
     public @ResponseBody ResponseEntity<?> historyAssembly() {
         return ResponseEntity.ok(assemblyService.historyAssembly());
+    }
+
+    @GetMapping(value = "/get-order")
+    public @ResponseBody ResponseEntity<?> getOrder(@RequestBody @Valid KdsHeaderRequest request) {
+        return ResponseEntity.ok(assemblyService.getOrder(request));
     }
 }

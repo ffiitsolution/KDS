@@ -122,86 +122,68 @@ public class AssemblyDaoImpl implements AssemblyDao {
                         }
                 }
                 return itemsResult;
+        }
 
-                // String headerQuery = "SELECT * FROM T_KDS_HEADER tkh WHERE
-                // TKH.ASSEMBLY_STATUS = 'AQ' AND OUTLET_CODE ="
-                // + outletCode + " ORDER BY TO_NUMBER(KDS_NO)";
-                // List<Map<String, Object>> headerResults = jdbcTemplate.query(headerQuery, new
-                // HashMap<>(),
-                // new DynamicRowMapper());
-                // for (Map<String, Object> header : headerResults) {
-                // String billno = header.get("billNo").toString();
-                // BigDecimal dayseq = (BigDecimal) header.get("daySeq");
-                // String poscode = header.get("posCode").toString();
-                // Date date = (Date) header.get("transDate");
+        @Override
+        public Map<String, Object> getOrder(KdsHeaderRequest request) {
+                String headerQuery = "SELECT BILL_NO, NOTES, KDS_NO, TRANS_DATE, " +
+                                " ASSEMBLY_START_TIME, START_TIME, ORDER_TYPE, MG3.DESCRIPTION ORDER_TYPE_DESC, DAY_SEQ, POS_CODE "
+                                + " FROM T_KDS_HEADER tkh LEFT JOIN M_GLOBAL MG3 ON tkh.ORDER_TYPE = MG3.CODE " +
+                                " AND MG3.COND = 'ORDER_TYPE' AND MG3.STATUS = 'A'" +
+                                " WHERE tkh.BILL_NO = :billNo AND tkh.KDS_NO =:kdsNo " +
+                                " AND tkh.POS_CODE = :posCode AND tkh.DAY_SEQ = :daySeq ";
+                Map<String, Object> headerResult = jdbcTemplate.queryForObject(headerQuery, new MapSqlParameterSource()
+                                .addValue("billNo", request.getBillNo())
+                                .addValue("kdsNo", request.getKdsNo())
+                                .addValue("posCode", request.getPosCode())
+                                .addValue("daySeq", request.getDaySeq()), new DynamicRowMapper());
 
-                // Map<String, Object> queryItemMap = new HashMap<>();
-                // queryItemMap.put("billNo", billno);
-                // queryItemMap.put("daySeq", dayseq);
-                // queryItemMap.put("posCode", poscode);
-                // queryItemMap.put("transDate", date);
-                // queryItemMap.put("outletCode", outletCode);
+                String billno = headerResult.get("billNo").toString();
+                BigDecimal dayseq = (BigDecimal) headerResult.get("daySeq");
+                String poscode = headerResult.get("posCode").toString();
+                Date date = (Date) headerResult.get("transDate");
 
-                // String itemQuery = "SELECT A.*, B.DESCRIPTION, CASE WHEN B.VALUE IN
-                // (11,12,13) THEN 1 ELSE 0 "
-                // + " END AS PREPARE_MENU_FLAG FROM T_KDS_ITEM A LEFT JOIN M_GLOBAL B ON
-                // A.MENU_ITEM_CODE = B.CODE AND B.COND = 'ITEM' AND B.STATUS = 'A'"
-                // + " WHERE A.BILL_NO = :billNo AND A.DAY_SEQ = :daySeq AND A.POS_CODE
-                // =:posCode "
-                // + " AND A.OUTLET_CODE = :outletCode AND A.TRANS_DATE = :transDate "
-                // + " ORDER BY A.ITEM_SEQ ASC";
-                // List<Map<String, Object>> itemResults = jdbcTemplate.query(itemQuery,
-                // queryItemMap,
-                // new DynamicRowMapper());
-                // for (Map<String, Object> item : itemResults) {
-
-                // Map<String, Object> queryItemDetailMap = new HashMap<>();
-                // queryItemDetailMap.put("billNo", billno);
-                // queryItemDetailMap.put("daySeq", dayseq);
-                // queryItemDetailMap.put("posCode", poscode);
-                // queryItemDetailMap.put("transDate", date);
-                // queryItemDetailMap.put("outletCode", outletCode);
-                // queryItemDetailMap.put("itemSeq", item.get("itemSeq"));
-                // queryItemDetailMap.put("menuItemCode", item.get("menuItemCode"));
-
-                // String itemDetailQuery = "SELECT A.*, B.DESCRIPTION, CASE WHEN B.VALUE IN
-                // (11,12,13) THEN 1 ELSE 0 END AS PREPARE_MENU_FLAG "
-                // + " FROM T_KDS_ITEM_DETAIL A LEFT JOIN M_GLOBAL B ON A.MENU_ITEM_CODE =B.CODE
-                // AND B.COND = 'ITEM' AND B.STATUS = 'A' WHERE "
-                // + " A.BILL_NO = :billNo "
-                // + " AND A.ITEM_SEQ = :itemSeq "
-                // + " AND A.DAY_SEQ = :daySeq "
-                // + " AND A.POS_CODE = :posCode "
-                // + " AND A.TRANS_DATE = :transDate "
-                // + " AND A.OUTLET_CODE = :outletCode "
-                // + " ORDER BY A.ITEM_DETAIL_SEQ";
-                // List<Map<String, Object>> itemDetailResult =
-                // jdbcTemplate.query(itemDetailQuery,
-                // queryItemDetailMap,
-                // new DynamicRowMapper());
-
-                // String menuItemCode = (String) item.get("menuItemCode");
-                // OptionalInt indexOpt = IntStream.range(0, itemDetailResult.size())
-                // .filter(i -> menuItemCode
-                // .equals(itemDetailResult.get(i).get("menuItemCode")))
-                // .findFirst();
-                // if (indexOpt.isPresent() && itemDetailResult.size() == 1) {
-                // item.put("itemDetails", new ArrayList<>());
-                // item.putAll(itemDetailResult.get(0));
-                // } else {
-                // OptionalInt indexBumpFlag = IntStream.range(0, itemDetailResult.size())
-                // .filter(i -> itemDetailResult.get(i).get("prepareMenuFlag")
-                // .equals(BigDecimal.ONE))
-                // .findFirst();
-                // if (indexBumpFlag.isPresent()) {
-                // item.put("prepareMenuFlag", 0);
-                // }
-                // item.put("itemDetails", itemDetailResult);
-                // }
-                // }
-                // header.put("items", itemResults);
-                // }
-                // return headerResults;
+                String itemQuery = "SELECT A.ITEM_QTY, A.MENU_ITEM_CODE, A.ITEM_SEQ, B.DESCRIPTION, "
+                                + " CASE WHEN B.VALUE IN (11,12,13) THEN 1 ELSE 0 "
+                                + " END AS PREPARE_MENU_FLAG FROM T_KDS_ITEM A LEFT JOIN M_GLOBAL B ON "
+                                + " A.MENU_ITEM_CODE = B.CODE AND B.COND = 'ITEM' AND B.STATUS = 'A'"
+                                + " WHERE A.BILL_NO = :billNo AND A.DAY_SEQ = :daySeq AND A.POS_CODE=:posCode "
+                                + " AND A.OUTLET_CODE = :outletCode AND A.TRANS_DATE = :transDate "
+                                + " ORDER BY A.ITEM_SEQ ASC ";
+                List<Map<String, Object>> itemResults = jdbcTemplate.query(itemQuery,
+                                new MapSqlParameterSource()
+                                                .addValue("billNo", billno)
+                                                .addValue("daySeq", dayseq)
+                                                .addValue("posCode", poscode)
+                                                .addValue("outletCode", outletCode)
+                                                .addValue("transDate", date),
+                                new DynamicRowMapper());
+                for (Map<String, Object> item : itemResults) {
+                        String itemDetailQuery = "SELECT A.ITEM_DETAIL_SEQ, ITEM_QTY, A.MENU_ITEM_CODE MENU_ITEM_DETAIL_CODE, B.DESCRIPTION DETAIL_DESCRIPTION, "
+                                        + " CASE WHEN B.VALUE IN (11,12,13) THEN 1 ELSE 0 END AS PREPARE_MENU_DETAIL_FLAG "
+                                        + " FROM T_KDS_ITEM_DETAIL A LEFT JOIN M_GLOBAL B ON A.MENU_ITEM_CODE =B.CODE "
+                                        + " AND B.COND = 'ITEM' AND B.STATUS = 'A' WHERE "
+                                        + " A.BILL_NO = :billNo "
+                                        + " AND A.ITEM_SEQ = :itemSeq "
+                                        + " AND A.DAY_SEQ = :daySeq "
+                                        + " AND A.POS_CODE = :posCode "
+                                        + " AND A.TRANS_DATE = :transDate "
+                                        + " AND A.OUTLET_CODE = :outletCode "
+                                        + " ORDER BY A.ITEM_DETAIL_SEQ ";
+                        List<Map<String, Object>> itemDetailResult = jdbcTemplate.query(itemDetailQuery,
+                                        new MapSqlParameterSource()
+                                                        .addValue("billNo", billno)
+                                                        .addValue("daySeq", dayseq)
+                                                        .addValue("posCode", poscode)
+                                                        .addValue("transDate", date)
+                                                        .addValue("outletCode", outletCode)
+                                                        .addValue("itemSeq", item.get("itemSeq"))
+                                                        .addValue("menuItemCode", item.get("menuItemCode")),
+                                        new DynamicRowMapper());
+                        item.put("itemDetails", itemDetailResult);
+                }
+                headerResult.put("items", itemResults);
+                return headerResult;
         }
 
         @Override
@@ -277,7 +259,7 @@ public class AssemblyDaoImpl implements AssemblyDao {
                                 + " FROM T_KDS_HEADER TKH "
                                 + " LEFT JOIN M_GLOBAL MG3 ON TKH.ORDER_TYPE = MG3.CODE AND MG3.COND = 'ORDER_TYPE' "
                                 + " WHERE TKH.OUTLET_CODE = '0208' AND TKH.ASSEMBLY_STATUS = 'AF' "
-                                + "        AND TKH.ASSEMBLY_LINE_CODE = '0' AND TKH.TRANS_DATE='"+transDate+"' "
+                                + "        AND TKH.ASSEMBLY_LINE_CODE = '0' AND TKH.TRANS_DATE='" + transDate + "' "
                                 + " ORDER BY to_number(TKH.KDS_NO) DESC, TKH.START_TIME, TKH.BILL_NO ";
 
                 return jdbcTemplate.query(historyAssemblyQuery, new DynamicRowMapper());

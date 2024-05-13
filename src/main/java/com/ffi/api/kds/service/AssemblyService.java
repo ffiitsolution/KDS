@@ -36,4 +36,8 @@ public class AssemblyService {
     public List<Map<String, Object>> historyAssembly() {
         return assemblyDao.historyAssembly();
     }
+
+    public Map<String, Object> getOrder( KdsHeaderRequest request) {
+        return assemblyDao.getOrder(request);
+    }
 }

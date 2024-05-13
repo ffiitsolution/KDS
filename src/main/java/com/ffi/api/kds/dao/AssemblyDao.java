@@ -55,4 +55,14 @@ public interface AssemblyDao {
      * @author <a href="https://www.linkedin.com/in/muhammad-dani-ramadhan-645356203">Dani Ramadhan</a> 
      */
     public List<Map<String, Object>> historyAssembly();
+
+
+    /**
+     * Get one Order full data
+     * @return A Map where the keys are strings representing the order details and the values are objects.
+     *         <p>Note: The structure of the map should be defined as <pre>Map&lt;String, Object&gt;</pre>
+     * @author <a href="https://www.linkedin.com/in/muhammad-dani-ramadhan-645356203">Dani Ramadhan</a> 
+     */
+    public Map<String, Object> getOrder(KdsHeaderRequest request);
+
 }
