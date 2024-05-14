@@ -1,14 +1,17 @@
 package com.ffi.api.kds.scheduler;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import com.ffi.api.kds.service.KdsService;
 import com.ffi.api.kds.service.SocketTriggerService;
 
 @Service
@@ -38,17 +41,25 @@ public class KdsScheduler {
 
     private final SocketTriggerService socketTriggerService;
     private final NamedParameterJdbcTemplate jdbcTemplate;
+    private final KdsService kdsService;
 
     public KdsScheduler(final SocketTriggerService socketTriggerService,
             final NamedParameterJdbcTemplate jdbcTemplate,
-            final @Value("${app.line.pos}") String linePos) {
+            final @Value("${app.line.pos}") String linePos,
+            final KdsService kdsService) {
         this.socketTriggerService = socketTriggerService;
         this.jdbcTemplate = jdbcTemplate;
         this.linePos = linePos;
+        this.kdsService = kdsService;
     }
 
-    @Scheduled(fixedDelay = 950)
+    @Scheduled(fixedDelay = 1000)
     public void countAssemblyQueueOrder() {
+        Date endDate = kdsService.getAppDate();
+        String endDateString = KdsService.dateformatDDMMMYYYY.format(endDate);
+        endDate = DateUtils.addDays(endDate, -3);
+        String startDateString = KdsService.dateformatDDMMMYYYY.format(endDate);
+
         String countQueueQuery = "SELECT count(*) FROM T_KDS_HEADER TKH JOIN T_KDS_ITEM TKHI ON TKH.OUTLET_CODE = TKHI.OUTLET_CODE "
                 + " AND TKH.POS_CODE = TKHI.POS_CODE AND TKH.DAY_SEQ = TKHI.DAY_SEQ AND TKH.BILL_NO = TKHI.BILL_NO "
                 + " JOIN T_KDS_ITEM_DETAIL TKHID ON TKH.OUTLET_CODE = TKHID.OUTLET_CODE AND TKH.POS_CODE = TKHID.POS_CODE "
@@ -56,7 +67,7 @@ public class KdsScheduler {
                 + " LEFT JOIN M_GLOBAL MG ON TKHI.MENU_ITEM_CODE = MG.CODE AND MG.COND = 'ITEM' "
                 + " WHERE TKH.OUTLET_CODE = '" + outletCode
                 + "' AND TKH.ASSEMBLY_STATUS = 'AQ' AND MG.VALUE NOT IN ('99') AND TKH.ASSEMBLY_LINE_CODE = '" + linePos
-                + "'";
+                + "' AND TKH.TRANS_DATE BETWEEN '" + startDateString + "' AND '" + endDateString + "'";
 
         Integer countQueueResult = jdbcTemplate.queryForObject(countQueueQuery, new HashMap<>(), Integer.class);
         if (assemblyQueueOrder == null) {
@@ -72,14 +83,19 @@ public class KdsScheduler {
         }
     }
 
-    @Scheduled(fixedDelay = 950)
+    @Scheduled(fixedDelay = 1000)
     public void countSupplyBaseFried() {
+        Date endDate = kdsService.getAppDate();
+        String endDateString = KdsService.dateformatDDMMMYYYY.format(endDate);
+        endDate = DateUtils.addDays(endDate, -3);
+        String startDateString = KdsService.dateformatDDMMMYYYY.format(endDate);
+
         String countSBFriedQuery = "SELECT COALESCE (COUNT(*), 0) FROM T_KDS_ITEM_DETAIL A "
                 + " LEFT JOIN T_KDS_HEADER C ON A.BILL_NO = C.BILL_NO "
                 + " AND A.POS_CODE = C.POS_CODE AND A.DAY_SEQ = C.DAY_SEQ AND A.TRANS_DATE = C.TRANS_DATE "
                 + " JOIN M_GLOBAL D ON A.MENU_ITEM_CODE = D.CODE AND D.COND = 'ITEM' AND D.VALUE = 11 AND D.STATUS =  'A' "
                 + " WHERE A.ITEM_STATUS = 'P' AND A.OUTLET_CODE = '" + outletCode + "' AND C.ASSEMBLY_LINE_CODE='"
-                + linePos + "'";
+                + linePos + "' AND C.TRANS_DATE BETWEEN '" + startDateString + "' AND '" + endDateString + "'";
 
         Integer countQueueResult = jdbcTemplate.queryForObject(countSBFriedQuery, new HashMap<>(), Integer.class);
         if (supplyBaseFriedQueueOrder == null) {
@@ -95,14 +111,19 @@ public class KdsScheduler {
         }
     }
 
-    @Scheduled(fixedDelay = 950)
+    @Scheduled(fixedDelay = 1000)
     public void countSupplyBaseBurger() {
+        Date endDate = kdsService.getAppDate();
+        String endDateString = KdsService.dateformatDDMMMYYYY.format(endDate);
+        endDate = DateUtils.addDays(endDate, -3);
+        String startDateString = KdsService.dateformatDDMMMYYYY.format(endDate);
+
         String countSBBurgerQuery = "SELECT COALESCE (COUNT(*), 0) FROM T_KDS_ITEM_DETAIL A "
                 + " LEFT JOIN T_KDS_HEADER C ON A.BILL_NO = C.BILL_NO "
                 + " AND A.POS_CODE = C.POS_CODE AND A.DAY_SEQ = C.DAY_SEQ AND A.TRANS_DATE = C.TRANS_DATE "
                 + " JOIN M_GLOBAL D ON A.MENU_ITEM_CODE = D.CODE AND D.COND = 'ITEM' AND D.VALUE = 12 AND D.STATUS =  'A' "
                 + " WHERE A.ITEM_STATUS = 'P' AND A.OUTLET_CODE = '" + outletCode + "' AND C.ASSEMBLY_LINE_CODE='"
-                + linePos + "'";
+                + linePos + "' AND C.TRANS_DATE BETWEEN '" + startDateString + "' AND '" + endDateString + "'";
 
         Integer countQueueResult = jdbcTemplate.queryForObject(countSBBurgerQuery, new HashMap<>(), Integer.class);
         if (supplyBaseBurgerQueueOrder == null) {
@@ -118,14 +139,19 @@ public class KdsScheduler {
         }
     }
 
-    @Scheduled(fixedDelay = 950)
+    @Scheduled(fixedDelay = 1000)
     public void countSupplyBasePasta() {
+        Date endDate = kdsService.getAppDate();
+        String endDateString = KdsService.dateformatDDMMMYYYY.format(endDate);
+        endDate = DateUtils.addDays(endDate, -3);
+        String startDateString = KdsService.dateformatDDMMMYYYY.format(endDate);
+
         String countSBPastaQuery = "SELECT COALESCE (COUNT(*), 0) FROM T_KDS_ITEM_DETAIL A "
                 + " LEFT JOIN T_KDS_HEADER C ON A.BILL_NO = C.BILL_NO "
                 + " AND A.POS_CODE = C.POS_CODE AND A.DAY_SEQ = C.DAY_SEQ AND A.TRANS_DATE = C.TRANS_DATE "
                 + " JOIN M_GLOBAL D ON A.MENU_ITEM_CODE = D.CODE AND D.COND = 'ITEM' AND D.VALUE = 13 AND D.STATUS =  'A' "
                 + " WHERE A.ITEM_STATUS = 'P' AND A.OUTLET_CODE = '" + outletCode + "' AND C.ASSEMBLY_LINE_CODE='"
-                + linePos + "'";
+                + linePos + "' AND C.TRANS_DATE BETWEEN '" + startDateString + "' AND '" + endDateString + "'";
         Integer countQueueResult = jdbcTemplate.queryForObject(countSBPastaQuery, new HashMap<>(), Integer.class);
         if (supplyBasePastaQueueOrder == null) {
             supplyBasePastaQueueOrder = countQueueResult;
@@ -140,8 +166,13 @@ public class KdsScheduler {
         }
     }
 
-    @Scheduled(fixedDelay = 950)
+    @Scheduled(fixedDelay = 1000)
     public void countDrinkBibQueueOrder() {
+        Date endDate = kdsService.getAppDate();
+        String endDateString = KdsService.dateformatDDMMMYYYY.format(endDate);
+        endDate = DateUtils.addDays(endDate, -3);
+        String startDateString = KdsService.dateformatDDMMMYYYY.format(endDate);
+
         String countDrinkBibQueueOrderQuery = "SELECT COALESCE(COUNT(*), 0) "
                 + " FROM T_KDS_HEADER A "
                 + " JOIN T_KDS_ITEM B ON A.OUTLET_CODE = B.OUTLET_CODE AND A.POS_CODE = B.POS_CODE "
@@ -150,7 +181,8 @@ public class KdsScheduler {
                 + " AND A.POS_CODE = C.POS_CODE AND A.DAY_SEQ = C.DAY_SEQ "
                 + " AND A.BILL_NO = C.BILL_NO AND B.ITEM_SEQ = C.ITEM_SEQ "
                 + " WHERE A.ASSEMBLY_LINE_CODE = '" + linePos + "' "
-                + " AND A.OUTLET_CODE = '" + outletCode + "' AND C.ITEM_FLOW = 'D' AND ITEM_STATUS <> 'F'";
+                + " AND A.OUTLET_CODE = '" + outletCode + "' AND C.ITEM_FLOW = 'D' AND ITEM_STATUS <> 'F'"
+                + " AND A.TRANS_DATE BETWEEN '" + startDateString + "' AND '" + endDateString + "' ";
 
         Integer countDrinkBibQueueOrderResult = jdbcTemplate.queryForObject(countDrinkBibQueueOrderQuery,
                 new HashMap<>(), Integer.class);
@@ -168,8 +200,13 @@ public class KdsScheduler {
         }
     }
 
-    @Scheduled(fixedDelay = 950)
+    @Scheduled(fixedDelay = 1000)
     public void countDrinkIceCreamQueueOrder() {
+        Date endDate = kdsService.getAppDate();
+        String endDateString = KdsService.dateformatDDMMMYYYY.format(endDate);
+        endDate = DateUtils.addDays(endDate, -3);
+        String startDateString = KdsService.dateformatDDMMMYYYY.format(endDate);
+
         String countDrinkIceCreamQueueOrderQuery = "SELECT COALESCE(COUNT(*),0) "
                 + " FROM T_KDS_HEADER A "
                 + " JOIN T_KDS_ITEM B ON A.OUTLET_CODE = B.OUTLET_CODE AND A.POS_CODE = B.POS_CODE "
@@ -178,7 +215,8 @@ public class KdsScheduler {
                 + " AND A.POS_CODE = C.POS_CODE AND A.DAY_SEQ = C.DAY_SEQ "
                 + " AND A.BILL_NO = C.BILL_NO AND B.ITEM_SEQ = C.ITEM_SEQ "
                 + " WHERE A.ASSEMBLY_LINE_CODE = '" + linePos + "' "
-                + " AND A.OUTLET_CODE = '" + outletCode + "' AND C.ITEM_FLOW = 'O' AND ITEM_STATUS <> 'F'";
+                + " AND A.OUTLET_CODE = '" + outletCode + "' AND C.ITEM_FLOW = 'O' AND ITEM_STATUS <> 'F'"
+                + " AND A.TRANS_DATE BETWEEN '" + startDateString + "' AND '" + endDateString + "' ";
         Integer countDrinkIceCreamQueueOrderResult = jdbcTemplate.queryForObject(countDrinkIceCreamQueueOrderQuery,
                 new HashMap<>(), Integer.class);
         if (drinkIceCreamQueueOrder == null) {
@@ -194,8 +232,13 @@ public class KdsScheduler {
         }
     }
 
-    @Scheduled(fixedDelay = 950)
+    @Scheduled(fixedDelay = 1000)
     public void otherQueueOrder() {
+        Date endDate = kdsService.getAppDate();
+        String endDateString = KdsService.dateformatDDMMMYYYY.format(endDate);
+        endDate = DateUtils.addDays(endDate, -3);
+        String startDateString = KdsService.dateformatDDMMMYYYY.format(endDate);
+
         String countDrinkOtherQueueOrderQuery = "SELECT COALESCE(COUNT(*), 0) "
                 + " FROM T_KDS_HEADER A "
                 + " JOIN T_KDS_ITEM B ON A.OUTLET_CODE = B.OUTLET_CODE AND A.POS_CODE = B.POS_CODE "
@@ -204,7 +247,8 @@ public class KdsScheduler {
                 + " AND A.POS_CODE = C.POS_CODE AND A.DAY_SEQ = C.DAY_SEQ "
                 + " AND A.BILL_NO = C.BILL_NO AND B.ITEM_SEQ = C.ITEM_SEQ "
                 + " WHERE A.ASSEMBLY_LINE_CODE = '" + linePos + "' "
-                + " AND A.OUTLET_CODE = '" + outletCode + "' AND C.ITEM_FLOW = 'I' AND ITEM_STATUS <> 'F'";
+                + " AND A.OUTLET_CODE = '" + outletCode + "' AND C.ITEM_FLOW = 'I' AND ITEM_STATUS <> 'F'"
+                + " AND A.TRANS_DATE BETWEEN '" + startDateString + "' AND '" + endDateString + "' ";
 
         Integer countDrinkOtherOrderResult = jdbcTemplate.queryForObject(countDrinkOtherQueueOrderQuery,
                 new HashMap<>(), Integer.class);
@@ -221,25 +265,33 @@ public class KdsScheduler {
         }
     }
 
-    @Scheduled(fixedDelay = 950)
+    @Scheduled(fixedDelay = 1000)
     public void countPickupQueue() {
+        Date endDate = kdsService.getAppDate();
+        String endDateString = KdsService.dateformatDDMMMYYYY.format(endDate);
+        endDate = DateUtils.addDays(endDate, -3);
+        String startDateString = KdsService.dateformatDDMMMYYYY.format(endDate);
+
         // count after assembly
         String countAfterAssemblyStatus = "SELECT COALESCE (COUNT(*),0) FROM T_KDS_HEADER tkh WHERE ASSEMBLY_STATUS <> 'AQ' "
                 + " AND DISPATCH_STATUS = 'DP' AND PICKUP_STATUS=NULL AND ASSEMBLY_LINE_CODE = '" + linePos
-                + "' AND OUTLET_CODE = '" + outletCode + "' ";
+                + "' AND OUTLET_CODE = '" + outletCode + "' "
+                + " AND TKH.TRANS_DATE BETWEEN '" + startDateString + "' AND '" + endDateString + "' ";
         Integer countPickupAfterAssemblyResult = jdbcTemplate.queryForObject(countAfterAssemblyStatus,
                 new HashMap<>(), Integer.class);
 
         // count serve status
         String countServeStatus = "SELECT COALESCE (COUNT(*),0) FROM T_KDS_HEADER tkh WHERE ASSEMBLY_STATUS <> 'AQ' "
                 + " AND DISPATCH_STATUS = 'DF' AND PICKUP_STATUS='SRV' AND ASSEMBLY_LINE_CODE = '" + linePos
-                + "' AND OUTLET_CODE = '" + outletCode + "' ";
+                + "' AND OUTLET_CODE = '" + outletCode + "' "
+                + " AND TKH.TRANS_DATE BETWEEN '" + startDateString + "' AND '" + endDateString + "' ";
         Integer countPickupServeResult = jdbcTemplate.queryForObject(countServeStatus,
                 new HashMap<>(), Integer.class);
 
         String countClaimUnclaimStatus = "SELECT COALESCE (COUNT(*),0) FROM T_KDS_HEADER tkh WHERE ASSEMBLY_STATUS <> 'AQ' "
                 + " AND PICKUP_STATUS IN ('CLM', 'UCL') AND ASSEMBLY_LINE_CODE = '" + linePos + "' AND OUTLET_CODE = '"
-                + outletCode + "' ";
+                + outletCode + "' "
+                + " AND TKH.TRANS_DATE BETWEEN '" + startDateString + "' AND '" + endDateString + "' ";
         Integer countPickupClaimUnclaimResult = jdbcTemplate.queryForObject(countClaimUnclaimStatus,
                 new HashMap<>(), Integer.class);
 
