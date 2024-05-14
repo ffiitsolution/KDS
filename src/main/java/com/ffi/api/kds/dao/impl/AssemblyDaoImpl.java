@@ -75,7 +75,7 @@ public class AssemblyDaoImpl implements AssemblyDao {
                                 + " LEFT JOIN M_GLOBAL MG ON TKHI.MENU_ITEM_CODE = MG.CODE AND MG.COND = 'ITEM' "
                                 + " LEFT JOIN M_GLOBAL MG2 ON TKHID.MENU_ITEM_CODE = MG2.CODE AND MG2.COND = 'ITEM' "
                                 + " LEFT JOIN M_GLOBAL MG3 ON TKH.ORDER_TYPE = MG3.CODE AND MG3.COND = 'ORDER_TYPE' "
-                                + " WHERE TKH.OUTLET_CODE = '" + outletCode + "' AND TKH.ASSEMBLY_STATUS = 'AQ' "
+                                + " WHERE TKH.OUTLET_CODE = '" + outletCode + "' AND TKH.ASSEMBLY_STATUS = 'AQ' AND TKHI.MENU_ITEM_CODE <> '"+ctaPlu+"' "
                                 + "        AND MG.VALUE NOT IN ('99') AND TKH.ASSEMBLY_LINE_CODE = '" + linePos + "' "
                                 + " ORDER BY TKH.START_TIME ASC, TKH.BILL_NO, TKHI.ITEM_SEQ, TKHID.ITEM_DETAIL_SEQ ";
                 System.out.println(queueQuery);
@@ -126,10 +126,12 @@ public class AssemblyDaoImpl implements AssemblyDao {
 
         @Override
         public Map<String, Object> getOrder(KdsHeaderRequest request) {
-                String headerQuery = "SELECT BILL_NO, NOTES, KDS_NO, TRANS_DATE, " +
-                                " ASSEMBLY_START_TIME, START_TIME, ORDER_TYPE, MG3.DESCRIPTION ORDER_TYPE_DESC, DAY_SEQ, POS_CODE "
+                String headerQuery = "SELECT coalesce(mps.STAFF_NAME, ' ') CASHIER_STAFF_NAME, tkh.BILL_NO, tkh.NOTES, tkh.KDS_NO, tkh.TRANS_DATE, tkh.DATE_UPD, " +
+                                " tkh.ASSEMBLY_START_TIME, tkh.START_TIME, tkh.ORDER_TYPE, MG3.DESCRIPTION ORDER_TYPE_DESC, tkh.DAY_SEQ, tkh.POS_CODE "
                                 + " FROM T_KDS_HEADER tkh LEFT JOIN M_GLOBAL MG3 ON tkh.ORDER_TYPE = MG3.CODE " +
-                                " AND MG3.COND = 'ORDER_TYPE' AND MG3.STATUS = 'A'" +
+                                " AND MG3.COND = 'ORDER_TYPE' AND MG3.STATUS = 'A' " +
+                                " LEFT JOIN T_POS_BILL tpb ON tpb.OUTLET_CODE = tkh.OUTLET_CODE AND tpb.BILL_NO = tkh.BILL_NO AND tpb.DAY_SEQ = tkh.DAY_SEQ AND tpb.POS_CODE = tkh.POS_CODE AND tpb.TRANS_DATE = tkh.TRANS_DATE " +
+                                " LEFT JOIN M_POS_STAFF mps ON mps.STAFF_POS_CODE = tpb.CASHIER_CODE AND mps.STATUS='A' " +
                                 " WHERE tkh.BILL_NO = :billNo AND tkh.KDS_NO =:kdsNo " +
                                 " AND tkh.POS_CODE = :posCode AND tkh.DAY_SEQ = :daySeq ";
                 Map<String, Object> headerResult = jdbcTemplate.queryForObject(headerQuery, new MapSqlParameterSource()
@@ -145,10 +147,10 @@ public class AssemblyDaoImpl implements AssemblyDao {
 
                 String itemQuery = "SELECT A.ITEM_QTY, A.MENU_ITEM_CODE, A.ITEM_SEQ, B.DESCRIPTION, "
                                 + " CASE WHEN B.VALUE IN (11,12,13) THEN 1 ELSE 0 "
-                                + " END AS PREPARE_MENU_FLAG FROM T_KDS_ITEM A LEFT JOIN M_GLOBAL B ON "
+                                + " END AS PREPARE_MENU_FLAG, A.TRANS_TYPE ITEM_TRANS_TYPE FROM T_KDS_ITEM A LEFT JOIN M_GLOBAL B ON "
                                 + " A.MENU_ITEM_CODE = B.CODE AND B.COND = 'ITEM' AND B.STATUS = 'A'"
                                 + " WHERE A.BILL_NO = :billNo AND A.DAY_SEQ = :daySeq AND A.POS_CODE=:posCode "
-                                + " AND A.OUTLET_CODE = :outletCode AND A.TRANS_DATE = :transDate "
+                                + " AND A.OUTLET_CODE = :outletCode AND A.TRANS_DATE = :transDate  AND A.MENU_ITEM_CODE <> '"+ctaPlu+"'"
                                 + " ORDER BY A.ITEM_SEQ ASC ";
                 List<Map<String, Object>> itemResults = jdbcTemplate.query(itemQuery,
                                 new MapSqlParameterSource()
@@ -169,6 +171,7 @@ public class AssemblyDaoImpl implements AssemblyDao {
                                         + " AND A.POS_CODE = :posCode "
                                         + " AND A.TRANS_DATE = :transDate "
                                         + " AND A.OUTLET_CODE = :outletCode "
+                                        + " AND A.MENU_ITEM_CODE <> '"+ctaPlu+"' "
                                         + " ORDER BY A.ITEM_DETAIL_SEQ ";
                         List<Map<String, Object>> itemDetailResult = jdbcTemplate.query(itemDetailQuery,
                                         new MapSqlParameterSource()
@@ -254,12 +257,12 @@ public class AssemblyDaoImpl implements AssemblyDao {
         public List<Map<String, Object>> historyAssembly() {
                 String transDate = KdsService.dateformatDDMMMYYYY.format(this.kdsService.getAppDate());
                 String historyAssemblyQuery = "SELECT TKH.OUTLET_CODE, TKH.POS_CODE, TKH.KDS_NO, TKH.BILL_NO, "
-                                + "       TKH.DAY_SEQ, TKH.TRANS_DATE, MG3.DESCRIPTION AS ORDER_TYPE_DESC, "
+                                + "       TKH.DAY_SEQ, TKH.TRANS_DATE, MG3.DESCRIPTION ORDER_TYPE_DESC, "
                                 + "       TKH.ORDER_TYPE, TKH.TRANS_TYPE BILL_TRANS_TYPE, NVL(TKH.NOTES, '') NOTES "
                                 + " FROM T_KDS_HEADER TKH "
                                 + " LEFT JOIN M_GLOBAL MG3 ON TKH.ORDER_TYPE = MG3.CODE AND MG3.COND = 'ORDER_TYPE' "
-                                + " WHERE TKH.OUTLET_CODE = '0208' AND TKH.ASSEMBLY_STATUS = 'AF' "
-                                + "        AND TKH.ASSEMBLY_LINE_CODE = '0' AND TKH.TRANS_DATE='" + transDate + "' "
+                                + " WHERE TKH.OUTLET_CODE = '"+outletCode+"' AND TKH.ASSEMBLY_STATUS = 'AF' "
+                                + "        AND TKH.ASSEMBLY_LINE_CODE = '"+linePos+"' AND TKH.TRANS_DATE='" + transDate + "' "
                                 + " ORDER BY to_number(TKH.KDS_NO) DESC, TKH.START_TIME, TKH.BILL_NO ";
 
                 return jdbcTemplate.query(historyAssemblyQuery, new DynamicRowMapper());

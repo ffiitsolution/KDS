@@ -57,7 +57,7 @@ public class AssemblyController {
         return ResponseEntity.ok(assemblyService.historyAssembly());
     }
 
-    @GetMapping(value = "/get-order")
+    @PutMapping(value = "/get-order")
     public @ResponseBody ResponseEntity<?> getOrder(@RequestBody @Valid KdsHeaderRequest request) {
         return ResponseEntity.ok(assemblyService.getOrder(request));
     }
