@@ -60,7 +60,7 @@ public class KdsScheduler {
         endDate = DateUtils.addDays(endDate, -3);
         String startDateString = KdsService.dateformatDDMMMYYYY.format(endDate);
 
-        String countQueueQuery = "SELECT count(*) FROM T_KDS_HEADER TKH JOIN T_KDS_ITEM TKHI ON TKH.OUTLET_CODE = TKHI.OUTLET_CODE "
+        String countQueueQuery = "SELECT COALESCE (count(*), 0) FROM T_KDS_HEADER TKH JOIN T_KDS_ITEM TKHI ON TKH.OUTLET_CODE = TKHI.OUTLET_CODE "
                 + " AND TKH.POS_CODE = TKHI.POS_CODE AND TKH.DAY_SEQ = TKHI.DAY_SEQ AND TKH.BILL_NO = TKHI.BILL_NO "
                 + " JOIN T_KDS_ITEM_DETAIL TKHID ON TKH.OUTLET_CODE = TKHID.OUTLET_CODE AND TKH.POS_CODE = TKHID.POS_CODE "
                 + " AND TKH.DAY_SEQ = TKHID.DAY_SEQ AND TKH.BILL_NO = TKHID.BILL_NO AND TKHI.ITEM_SEQ = TKHID.ITEM_SEQ "
