@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -27,10 +28,17 @@ public class KdsController {
     @Autowired
     SocketTriggerService socketTriggerService;
 
+    @Value("${app.outletCode}")
+    private String outletCode;
+    @Value("${app.line.pos}")
+    private String linePos;
+
     @GetMapping
     public Map<String, Object> version() {
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put("", "ITD FFI 2024 1.0.1");
+        map.put("VERSION", "ITD FFI 2024 1.0.1");
+        map.put("BRANCH", outletCode);
+        map.put("LINE_POS", linePos);
         return map;
     }
 
@@ -38,6 +46,8 @@ public class KdsController {
     public @ResponseBody Map<String, Object> tes() {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("VERSION", "ITD FFI 2024 1.0.1");
+        map.put("BRANCH", outletCode);
+        map.put("LINE_POS", linePos);
         return map;
     }
 
@@ -55,5 +65,6 @@ public class KdsController {
         this.socketTriggerService.refreshDrinkBib(UUID.randomUUID().toString()+": testing drink bib refresh..");
         this.socketTriggerService.refreshDrinkIceCream(UUID.randomUUID().toString()+": testing drink icecream refresh..");
         this.socketTriggerService.refreshDrinkOther(UUID.randomUUID().toString()+": testing drink other refresh..");
+        this.socketTriggerService.refreshPickup(UUID.randomUUID().toString()+": testing pickup refresh..");
     }
 }
