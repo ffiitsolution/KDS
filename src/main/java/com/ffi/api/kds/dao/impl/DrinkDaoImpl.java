@@ -37,7 +37,7 @@ public class DrinkDaoImpl implements DrinkDao {
     @Override
     public List<Map<String, Object>> bibQueueOrder() {
         String bibQuery = "SELECT MG.DESCRIPTION, AA.* FROM ( "
-                + " SELECT C.POS_CODE, A.KDS_NO, C.BILL_NO, C.TRANS_TYPE, C.MENU_ITEM_CODE, SUM(C.ITEM_QTY) ITEM_QTY  "
+                + " SELECT C.POS_CODE, A.KDS_NO, C.BILL_NO, C.TRANS_TYPE, C.MENU_ITEM_CODE, SUM(C.ITEM_QTY) ITEM_QTY, C.DATE_UPD DETAIL_DATE_UPD  "
                 + " FROM T_KDS_HEADER A JOIN T_KDS_ITEM B ON A.OUTLET_CODE = B.OUTLET_CODE "
                 + "     AND A.POS_CODE = B.POS_CODE AND A.DAY_SEQ = B.DAY_SEQ AND A.BILL_NO = B.BILL_NO "
                 + " JOIN T_KDS_ITEM_DETAIL C ON A.OUTLET_CODE = C.OUTLET_CODE "
@@ -45,7 +45,7 @@ public class DrinkDaoImpl implements DrinkDao {
                 + " WHERE A.ASSEMBLY_LINE_CODE = '" + linePos + "' "
                 + " AND A.OUTLET_CODE = '" + outletCode + "' AND C.ITEM_FLOW = 'D' "
                 + "     AND ITEM_STATUS <> 'F' GROUP BY A.START_TIME, C.POS_CODE, "
-                + "     A.KDS_NO, C.BILL_NO,C.TRANS_TYPE, C.MENU_ITEM_CODE "
+                + "     A.KDS_NO, C.BILL_NO,C.TRANS_TYPE, C.MENU_ITEM_CODE , C.DATE_UPD "
                 + " ORDER BY TO_NUMBER(A.KDS_NO), A.START_TIME,C.MENU_ITEM_CODE ASC) AA "
                 + " JOIN M_GLOBAL MG ON	MG.CODE = AA.MENU_ITEM_CODE AND MG.COND = 'ITEM'";
         return jdbcTemplate.query(bibQuery, new HashMap<>(), new DynamicRowMapper());
@@ -54,7 +54,7 @@ public class DrinkDaoImpl implements DrinkDao {
     @Override
     public List<Map<String, Object>> iceCreamQueueOrder() {
         String iceCreamQuery = "SELECT MG.DESCRIPTION, AA.* FROM ( "
-                + " SELECT C.POS_CODE, A.KDS_NO, C.BILL_NO, C.TRANS_TYPE, C.MENU_ITEM_CODE, SUM(C.ITEM_QTY) ITEM_QTY  "
+                + " SELECT C.POS_CODE, A.KDS_NO, C.BILL_NO, C.TRANS_TYPE, C.MENU_ITEM_CODE, SUM(C.ITEM_QTY) ITEM_QTY, C.DATE_UPD DETAIL_DATE_UPD  "
                 + " FROM T_KDS_HEADER A JOIN T_KDS_ITEM B ON A.OUTLET_CODE = B.OUTLET_CODE "
                 + "     AND A.POS_CODE = B.POS_CODE AND A.DAY_SEQ = B.DAY_SEQ AND A.BILL_NO = B.BILL_NO "
                 + " JOIN T_KDS_ITEM_DETAIL C ON A.OUTLET_CODE = C.OUTLET_CODE "
@@ -62,7 +62,7 @@ public class DrinkDaoImpl implements DrinkDao {
                 + " WHERE A.ASSEMBLY_LINE_CODE = '" + linePos + "' "
                 + " AND A.OUTLET_CODE = '" + outletCode + "' AND C.ITEM_FLOW = 'O' "
                 + "     AND ITEM_STATUS <> 'F' GROUP BY A.START_TIME, C.POS_CODE, "
-                + "     A.KDS_NO, C.BILL_NO,C.TRANS_TYPE, C.MENU_ITEM_CODE "
+                + "     A.KDS_NO, C.BILL_NO,C.TRANS_TYPE, C.MENU_ITEM_CODE , C.DATE_UPD "
                 + " ORDER BY TO_NUMBER(A.KDS_NO), A.START_TIME, C.MENU_ITEM_CODE ASC) AA "
                 + " JOIN M_GLOBAL MG ON	MG.CODE = AA.MENU_ITEM_CODE AND MG.COND = 'ITEM'";
         return jdbcTemplate.query(iceCreamQuery, new HashMap<>(), new DynamicRowMapper());
@@ -71,7 +71,7 @@ public class DrinkDaoImpl implements DrinkDao {
     @Override
     public List<Map<String, Object>> otherQueueOrder() {
         String otherQuery = "SELECT MG.DESCRIPTION, AA.* FROM ( "
-                + " SELECT C.POS_CODE, A.KDS_NO, C.BILL_NO, C.TRANS_TYPE, C.MENU_ITEM_CODE, SUM(C.ITEM_QTY) ITEM_QTY  "
+                + " SELECT C.POS_CODE, A.KDS_NO, C.BILL_NO, C.TRANS_TYPE, C.MENU_ITEM_CODE, SUM(C.ITEM_QTY) ITEM_QTY, C.DATE_UPD DETAIL_DATE_UPD  "
                 + " FROM T_KDS_HEADER A JOIN T_KDS_ITEM B ON A.OUTLET_CODE = B.OUTLET_CODE "
                 + "     AND A.POS_CODE = B.POS_CODE AND A.DAY_SEQ = B.DAY_SEQ AND A.BILL_NO = B.BILL_NO "
                 + " JOIN T_KDS_ITEM_DETAIL C ON A.OUTLET_CODE = C.OUTLET_CODE "
@@ -79,7 +79,7 @@ public class DrinkDaoImpl implements DrinkDao {
                 + " WHERE A.ASSEMBLY_LINE_CODE = '" + linePos + "' "
                 + " AND A.OUTLET_CODE = '" + outletCode + "' AND C.ITEM_FLOW = 'I' "
                 + "     AND ITEM_STATUS <> 'F' GROUP BY A.START_TIME, C.POS_CODE, "
-                + "     A.KDS_NO, C.BILL_NO,C.TRANS_TYPE, C.MENU_ITEM_CODE "
+                + "     A.KDS_NO, C.BILL_NO,C.TRANS_TYPE, C.MENU_ITEM_CODE , C.DATE_UPD "
                 + " ORDER BY TO_NUMBER(A.KDS_NO), A.START_TIME, C.MENU_ITEM_CODE ASC) AA "
                 + " JOIN M_GLOBAL MG ON	MG.CODE = AA.MENU_ITEM_CODE AND MG.COND = 'ITEM'";
         return jdbcTemplate.query(otherQuery, new HashMap<>(), new DynamicRowMapper());
