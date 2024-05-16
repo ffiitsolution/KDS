@@ -82,6 +82,15 @@ public class WebSecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
+        System.out.println("");
+        System.out.println("");
+        System.out.println("                    KK     KKKK  DDDDDD       SSSSSSSS");
+        System.out.println("                    KK    KKK    DD   DDD   SSS");
+        System.out.println("                    KK  KKK      DD    DDD  SSS");
+        System.out.println("                    KKKKK        DD     DDD  SSSSSS");
+        System.out.println("                    KK  KKK      DD    DDD        SSSSS");
+        System.out.println("                    KK    KKK    DD   DDD         SSSSS");
+        System.out.println("                    KK     KKKK  DDDDDD     SSSSSSSS");
         System.out.println("============================================================================");
         System.out
                 .println("===============              outlet code : " + outletCode + "            =================");
