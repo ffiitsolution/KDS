@@ -54,8 +54,8 @@ public class SupplyBaseDaoImpl implements SupplyBaseDao {
                                 + " AND A.DAY_SEQ = B.DAY_SEQ AND A.TRANS_DATE = B.TRANS_DATE AND A.ITEM_SEQ = B.ITEM_SEQ "
                                 + " LEFT JOIN T_KDS_HEADER C ON A.BILL_NO = C.BILL_NO "
                                 + " AND A.POS_CODE = C.POS_CODE AND A.DAY_SEQ = C.DAY_SEQ AND A.TRANS_DATE = C.TRANS_DATE "
-                                + " JOIN M_GLOBAL D ON A.MENU_ITEM_CODE = D.CODE AND D.COND = 'ITEM' AND D.VALUE = 11 AND D.STATUS =  'A' "
-                                + " WHERE A.ITEM_STATUS = 'P' AND A.OUTLET_CODE = '" + outletCode
+                                + " LEFT JOIN M_GLOBAL D ON A.MENU_ITEM_CODE = D.CODE AND D.COND = 'ITEM' AND D.STATUS =  'A' "
+                                + " WHERE A.ITEM_STATUS = 'P' AND C.ITEM_FLOW = 'F' AND A.OUTLET_CODE = '" + outletCode
                                 + "' AND C.ASSEMBLY_LINE_CODE='" + linePos + "' "
                                 + " ORDER BY to_number(C.KDS_NO), A.ITEM_SEQ , A.ITEM_DETAIL_SEQ";
                 return jdbcTemplate.query(friedQuery, new HashMap<>(),
@@ -70,8 +70,8 @@ public class SupplyBaseDaoImpl implements SupplyBaseDao {
                                 + " AND A.DAY_SEQ = B.DAY_SEQ AND A.TRANS_DATE = B.TRANS_DATE AND A.ITEM_SEQ = B.ITEM_SEQ "
                                 + " LEFT JOIN T_KDS_HEADER C ON A.BILL_NO = C.BILL_NO "
                                 + " AND A.POS_CODE = C.POS_CODE AND A.DAY_SEQ = C.DAY_SEQ AND A.TRANS_DATE = C.TRANS_DATE "
-                                + " JOIN M_GLOBAL D ON A.MENU_ITEM_CODE = D.CODE AND D.COND = 'ITEM' AND D.VALUE = 12 AND D.STATUS = 'A' "
-                                + " WHERE A.ITEM_STATUS = 'P' AND A.OUTLET_CODE = '" + outletCode
+                                + " LEFT JOIN M_GLOBAL D ON A.MENU_ITEM_CODE = D.CODE AND D.COND = 'ITEM' AND D.STATUS = 'A' "
+                                + " WHERE A.ITEM_STATUS = 'P' AND C.ITEM_FLOW = 'B' AND A.OUTLET_CODE = '" + outletCode
                                 + "' AND C.ASSEMBLY_LINE_CODE='" + linePos + "' "
                                 + " ORDER BY to_number(C.KDS_NO), A.ITEM_SEQ , A.ITEM_DETAIL_SEQ";
                 return jdbcTemplate.query(pastaQuery, new HashMap<>(),
@@ -86,8 +86,8 @@ public class SupplyBaseDaoImpl implements SupplyBaseDao {
                                 + " AND A.DAY_SEQ = B.DAY_SEQ AND A.TRANS_DATE = B.TRANS_DATE AND A.ITEM_SEQ = B.ITEM_SEQ "
                                 + " LEFT JOIN T_KDS_HEADER C ON A.BILL_NO = C.BILL_NO "
                                 + " AND A.POS_CODE = C.POS_CODE AND A.DAY_SEQ = C.DAY_SEQ AND A.TRANS_DATE = C.TRANS_DATE "
-                                + " JOIN M_GLOBAL D ON A.MENU_ITEM_CODE = D.CODE AND D.COND = 'ITEM' AND D.VALUE = 13 AND D.STATUS =  'A'"
-                                + " WHERE A.ITEM_STATUS = 'P' AND A.OUTLET_CODE = '" + outletCode
+                                + " LEFT JOIN M_GLOBAL D ON A.MENU_ITEM_CODE = D.CODE AND D.COND = 'ITEM' AND D.STATUS =  'A'"
+                                + " WHERE A.ITEM_STATUS = 'P' AND C.ITEM_FLOW = 'P' AND A.OUTLET_CODE = '" + outletCode
                                 + "' AND C.ASSEMBLY_LINE_CODE='" + linePos + "' "
                                 + " ORDER BY to_number(C.KDS_NO), A.ITEM_SEQ , A.ITEM_DETAIL_SEQ";
                 return jdbcTemplate.query(pastaQuery, new HashMap<>(),

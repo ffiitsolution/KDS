@@ -20,8 +20,18 @@ public interface AssemblyDao {
     public List<Map<String, Object>> queueOrder();
 
     /**
-     * Mark the queue orders to done assembly.
-     * 
+     * Mark the queue orders to done assembly. update field from T_KDS_HEADER
+     * <pre>
+     * ASSEMBLY_STATUS= 'AF'
+     * ASSEMBLY_END_TIME= TIMESTAMP
+     * DISPATCH_STATUS= 'DP'
+     * DISPATCH_START_TIME= TIMESTAMP
+     * PICKUP_START_TIME= TIMESTAMP
+     * FINISH_TIME= TIMESTAMP
+     * DATE_UPD= TIMESTAMP
+     * TIME_UPD= TIMESTRING
+     * USER_UPD= NULL
+     * </pre>
      * @return A Object KdsHeaderRequest.
      *         <p>Note: KdsHeaderRequest define in package <pre>com.ffi.api.kds.dto.KdsHeaderRequest</pre>
      * @author <a href="https://www.linkedin.com/in/muhammad-dani-ramadhan-645356203">Dani Ramadhan</a> 
@@ -29,8 +39,14 @@ public interface AssemblyDao {
     public KdsHeaderRequest doneAssembly(KdsHeaderRequest e);
 
     /**
-     * Mark item ready to create in supply base.
-     * 
+     * Mark item ready to create in supply base. update field from T_KDS_ITEM_DETAIL
+     * <pre>
+     * ITEM_FLOW= 'B'
+     * ITEM_STATUS= 'P'
+     * DATE_UPD= TIMESTAMP
+     * TIME_UPD= TIMESTRING
+     * USER_UPD= NULL
+     * </pre>
      * @return A Object PrepareItemAssembyRequest.
      *         <p>Note: PrepareItemAssembyRequest define in package <pre>com.ffi.api.kds.dto.PrepareItemAssembyRequest</pre>
      * @author <a href="https://www.linkedin.com/in/muhammad-dani-ramadhan-645356203">Dani Ramadhan</a> 
