@@ -33,6 +33,12 @@ public class WebSecurityConfig {
     @Value("${app.outletCode}")
     private String outletCode;
 
+    @Value("${app.line.pos}")
+    private String linePos;
+
+    @Value("${app.charge.take.away.plu}")
+    private String ctaPlu;
+
     @Value("${app.external.properties}")
     private String externalProperties;
 
@@ -79,8 +85,12 @@ public class WebSecurityConfig {
         System.out.println("============================================================================");
         System.out
                 .println("===============              outlet code : " + outletCode + "            =================");
+        System.out
+                .println("===============              line pos    : " + linePos + "               =================");
+        System.out
+                .println("===============              cta plu     : " + ctaPlu + "            =================");
         System.out.println("============================================================================");
-        System.out.println("Attention!!! Please ensure kds.properties file is available in " + externalProperties);
+        System.out.println("Attention !!! Please ensure properties file is available in " + externalProperties);
         System.out.println("============================================================================");
         UserDetails userDetails = User.withDefaultPasswordEncoder()
                 .username(kdsUsername)

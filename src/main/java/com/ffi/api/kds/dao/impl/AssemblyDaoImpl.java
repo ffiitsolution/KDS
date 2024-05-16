@@ -78,7 +78,6 @@ public class AssemblyDaoImpl implements AssemblyDao {
                                 + " WHERE TKH.OUTLET_CODE = '" + outletCode + "' AND TKH.ASSEMBLY_STATUS = 'AQ' AND TKHI.MENU_ITEM_CODE <> '"+ctaPlu+"' "
                                 + "        AND MG.VALUE NOT IN ('99') AND TKH.ASSEMBLY_LINE_CODE = '" + linePos + "' "
                                 + " ORDER BY TKH.START_TIME ASC, TKH.BILL_NO, TKHI.ITEM_SEQ, TKHID.ITEM_DETAIL_SEQ ";
-                System.out.println(queueQuery);
                 List<Map<String, Object>> queueResult = jdbcTemplate.query(queueQuery, new DynamicRowMapper());
                 List<String> groupByHeader = new LinkedList<>();
                 groupByHeader.add("kdsNo");
