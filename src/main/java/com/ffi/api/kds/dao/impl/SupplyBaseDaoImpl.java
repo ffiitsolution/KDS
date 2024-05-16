@@ -48,7 +48,7 @@ public class SupplyBaseDaoImpl implements SupplyBaseDao {
 
         @Override
         public List<Map<String, Object>> friedQueueOrder() {
-                String friedQuery = "SELECT A.ITEM_QTY, A.BILL_NO, A.POS_CODE, A.DAY_SEQ, A.ITEM_SEQ, A.ITEM_DETAIL_SEQ, A.TRANS_DATE, D.DESCRIPTION, A.TRANS_TYPE, A.DATE_UPD DETAIL_DATE_UPD "
+                String friedQuery = "SELECT C.KDS_NO, A.ITEM_QTY, A.BILL_NO, A.POS_CODE, A.DAY_SEQ, A.ITEM_SEQ, A.ITEM_DETAIL_SEQ, A.TRANS_DATE, D.DESCRIPTION, A.TRANS_TYPE, A.DATE_UPD DETAIL_DATE_UPD "
                                 + " FROM T_KDS_ITEM_DETAIL A "
                                 + " LEFT JOIN T_KDS_ITEM B ON A.BILL_NO = B.BILL_NO AND A.POS_CODE = B.POS_CODE "
                                 + " AND A.DAY_SEQ = B.DAY_SEQ AND A.TRANS_DATE = B.TRANS_DATE AND A.ITEM_SEQ = B.ITEM_SEQ "
@@ -64,7 +64,7 @@ public class SupplyBaseDaoImpl implements SupplyBaseDao {
 
         @Override
         public List<Map<String, Object>> burgerQueueOrder() {
-                String pastaQuery = "SELECT A.ITEM_QTY, A.BILL_NO, A.POS_CODE, A.DAY_SEQ, A.ITEM_SEQ, A.ITEM_DETAIL_SEQ, A.TRANS_DATE, D.DESCRIPTION, A.TRANS_TYPE, A.DATE_UPD DETAIL_DATE_UPD "
+                String pastaQuery = "SELECT C.KDS_NO, A.ITEM_QTY, A.BILL_NO, A.POS_CODE, A.DAY_SEQ, A.ITEM_SEQ, A.ITEM_DETAIL_SEQ, A.TRANS_DATE, D.DESCRIPTION, A.TRANS_TYPE, A.DATE_UPD DETAIL_DATE_UPD "
                                 + " FROM T_KDS_ITEM_DETAIL A "
                                 + " LEFT JOIN T_KDS_ITEM B ON A.BILL_NO = B.BILL_NO AND A.POS_CODE = B.POS_CODE "
                                 + " AND A.DAY_SEQ = B.DAY_SEQ AND A.TRANS_DATE = B.TRANS_DATE AND A.ITEM_SEQ = B.ITEM_SEQ "
@@ -80,7 +80,7 @@ public class SupplyBaseDaoImpl implements SupplyBaseDao {
 
         @Override
         public List<Map<String, Object>> pastaQueueOrder() {
-                String pastaQuery = "SELECT A.ITEM_QTY, A.BILL_NO, A.POS_CODE, A.DAY_SEQ, A.ITEM_SEQ, A.ITEM_DETAIL_SEQ, A.TRANS_DATE, D.DESCRIPTION, A.TRANS_TYPE, A.DATE_UPD DETAIL_DATE_UPD "
+                String pastaQuery = "SELECT C.KDS_NO, A.ITEM_QTY, A.BILL_NO, A.POS_CODE, A.DAY_SEQ, A.ITEM_SEQ, A.ITEM_DETAIL_SEQ, A.TRANS_DATE, D.DESCRIPTION, A.TRANS_TYPE, A.DATE_UPD DETAIL_DATE_UPD "
                                 + " FROM T_KDS_ITEM_DETAIL A "
                                 + " LEFT JOIN T_KDS_ITEM B ON A.BILL_NO = B.BILL_NO AND A.POS_CODE = B.POS_CODE "
                                 + " AND A.DAY_SEQ = B.DAY_SEQ AND A.TRANS_DATE = B.TRANS_DATE AND A.ITEM_SEQ = B.ITEM_SEQ "
