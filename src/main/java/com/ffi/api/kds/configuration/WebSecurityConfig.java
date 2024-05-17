@@ -101,6 +101,8 @@ public class WebSecurityConfig {
         System.out.println("============================================================================");
         System.out.println("Attention !!! Please ensure properties file is available in " + externalProperties);
         System.out.println("============================================================================");
+        System.out.println("");
+        System.out.println("");
         UserDetails userDetails = User.withDefaultPasswordEncoder()
                 .username(kdsUsername)
                 .password(kdsPassword)

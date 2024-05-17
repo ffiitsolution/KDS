@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.OptionalInt;
-import java.util.UUID;
 import java.util.stream.IntStream;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -35,7 +34,6 @@ public class AssemblyDaoImpl implements AssemblyDao {
         private String ctaPlu;
 
         private final NamedParameterJdbcTemplate jdbcTemplate;
-        private final SocketTriggerService socketTriggerService;
         private KdsService kdsService;
 
         public AssemblyDaoImpl(final NamedParameterJdbcTemplate jdbcTemplate,
@@ -43,7 +41,6 @@ public class AssemblyDaoImpl implements AssemblyDao {
                         final @Value("${app.line.pos}") String linePos,
                         final KdsService kdsService) {
                 this.jdbcTemplate = jdbcTemplate;
-                this.socketTriggerService = socketTriggerService;
                 this.linePos = linePos;
                 this.kdsService = kdsService;
         }
@@ -233,10 +230,10 @@ public class AssemblyDaoImpl implements AssemblyDao {
                                 .addValue("timeString", timeFormatter.format(timestamp))
                                 .addValue("timestamp", timestamp));
 
-                socketTriggerService.refreshAssembly(UUID.randomUUID().toString());
-                socketTriggerService.refreshSupplyBaseFried(UUID.randomUUID().toString());
-                socketTriggerService.refreshSupplyBaseBurger(UUID.randomUUID().toString());
-                socketTriggerService.refreshSupplyBasePasta(UUID.randomUUID().toString());
+                // socketTriggerService.refreshAssembly(UUID.randomUUID().toString());
+                // socketTriggerService.refreshSupplyBaseFried(UUID.randomUUID().toString());
+                // socketTriggerService.refreshSupplyBaseBurger(UUID.randomUUID().toString());
+                // socketTriggerService.refreshSupplyBasePasta(UUID.randomUUID().toString());
                 return request;
         }
 

@@ -85,6 +85,7 @@ public class KdsScheduler {
 
     @Scheduled(fixedDelay = 1000)
     public void countSupplyBaseFried() {
+        if (linePos.equals("3")) return;
         Date endDate = kdsService.getAppDate();
         String endDateString = KdsService.dateformatDDMMMYYYY.format(endDate);
         endDate = DateUtils.addDays(endDate, -3);
@@ -113,6 +114,7 @@ public class KdsScheduler {
 
     @Scheduled(fixedDelay = 1000)
     public void countSupplyBaseBurger() {
+        if (linePos.equals("3")) return;
         Date endDate = kdsService.getAppDate();
         String endDateString = KdsService.dateformatDDMMMYYYY.format(endDate);
         endDate = DateUtils.addDays(endDate, -3);
@@ -141,6 +143,7 @@ public class KdsScheduler {
 
     @Scheduled(fixedDelay = 1000)
     public void countSupplyBasePasta() {
+        if (linePos.equals("3")) return;
         Date endDate = kdsService.getAppDate();
         String endDateString = KdsService.dateformatDDMMMYYYY.format(endDate);
         endDate = DateUtils.addDays(endDate, -3);
@@ -168,6 +171,7 @@ public class KdsScheduler {
 
     @Scheduled(fixedDelay = 1000)
     public void countDrinkBibQueueOrder() {
+        if (linePos.equals("3")) return;
         Date endDate = kdsService.getAppDate();
         String endDateString = KdsService.dateformatDDMMMYYYY.format(endDate);
         endDate = DateUtils.addDays(endDate, -3);
@@ -202,6 +206,7 @@ public class KdsScheduler {
 
     @Scheduled(fixedDelay = 1000)
     public void countDrinkIceCreamQueueOrder() {
+        if (linePos.equals("3")) return;
         Date endDate = kdsService.getAppDate();
         String endDateString = KdsService.dateformatDDMMMYYYY.format(endDate);
         endDate = DateUtils.addDays(endDate, -3);
@@ -234,6 +239,7 @@ public class KdsScheduler {
 
     @Scheduled(fixedDelay = 1000)
     public void otherQueueOrder() {
+        if (linePos.equals("3")) return;
         Date endDate = kdsService.getAppDate();
         String endDateString = KdsService.dateformatDDMMMYYYY.format(endDate);
         endDate = DateUtils.addDays(endDate, -3);

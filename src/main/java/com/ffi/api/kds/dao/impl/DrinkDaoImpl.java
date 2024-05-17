@@ -24,13 +24,11 @@ public class DrinkDaoImpl implements DrinkDao {
     private String outletCode;
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
-    private final SocketTriggerService socketTriggerService;
 
     public DrinkDaoImpl(final NamedParameterJdbcTemplate jdbcTemplate,
             final SocketTriggerService socketTriggerService,
             final @Value("${app.line.pos}") String linePos) {
         this.jdbcTemplate = jdbcTemplate;
-        this.socketTriggerService = socketTriggerService;
         this.linePos = linePos;
     }
 
