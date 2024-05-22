@@ -62,7 +62,8 @@ public class KdsScheduler {
                 + " AND TKH.DAY_SEQ = TKHID.DAY_SEQ AND TKH.BILL_NO = TKHID.BILL_NO AND TKHI.ITEM_SEQ = TKHID.ITEM_SEQ "
                 + " LEFT JOIN M_GLOBAL MG ON TKHI.MENU_ITEM_CODE = MG.CODE AND MG.COND = 'ITEM' "
                 + " WHERE TKH.OUTLET_CODE = '" + outletCode
-                + "' AND TKH.ASSEMBLY_STATUS = 'AQ' AND MG.VALUE NOT IN ('99') AND TKH.ASSEMBLY_LINE_CODE = '" + linePos+ "' ";
+                + "' AND TKH.ASSEMBLY_STATUS = 'AQ' AND MG.VALUE NOT IN ('99') AND TKH.ASSEMBLY_LINE_CODE = '" + linePos
+                + "' ";
         Integer countQueueResult = jdbcTemplate.queryForObject(countQueueQuery, new HashMap<>(), Integer.class);
         if (assemblyQueueOrder == null) {
             assemblyQueueOrder = countQueueResult;
@@ -79,13 +80,17 @@ public class KdsScheduler {
 
     @Scheduled(fixedDelay = 1000)
     public void countSupplyBaseFried() {
-        if (linePos.equals("3")) return;
-        String countSBFriedQuery = "SELECT COALESCE (COUNT(*), 0) FROM T_KDS_ITEM_DETAIL A "
+        if (linePos.equals("3"))
+            return;
+        String countSBFriedQuery = "SELECT COALESCE (COUNT(*), 0) "
+                + " FROM T_KDS_ITEM_DETAIL A "
+                + " LEFT JOIN T_KDS_ITEM B ON A.BILL_NO = B.BILL_NO AND A.POS_CODE = B.POS_CODE "
+                + " AND A.DAY_SEQ = B.DAY_SEQ AND A.TRANS_DATE = B.TRANS_DATE AND A.ITEM_SEQ = B.ITEM_SEQ "
                 + " LEFT JOIN T_KDS_HEADER C ON A.BILL_NO = C.BILL_NO "
                 + " AND A.POS_CODE = C.POS_CODE AND A.DAY_SEQ = C.DAY_SEQ AND A.TRANS_DATE = C.TRANS_DATE "
-                + " JOIN M_GLOBAL D ON A.MENU_ITEM_CODE = D.CODE AND D.COND = 'ITEM' AND D.VALUE = 11 AND D.STATUS =  'A' "
-                + " WHERE A.ITEM_STATUS = 'P' AND A.OUTLET_CODE = '" + outletCode + "' AND C.ASSEMBLY_LINE_CODE='"
-                + linePos + "'";
+                + " LEFT JOIN M_GLOBAL D ON A.MENU_ITEM_CODE = D.CODE AND D.COND = 'ITEM' AND D.STATUS =  'A' "
+                + " WHERE A.ITEM_STATUS = 'P' AND A.ITEM_FLOW = 'F' AND A.OUTLET_CODE = '" + outletCode
+                + "' AND C.ASSEMBLY_LINE_CODE='" + linePos + "' ";
 
         Integer countQueueResult = jdbcTemplate.queryForObject(countSBFriedQuery, new HashMap<>(), Integer.class);
         if (supplyBaseFriedQueueOrder == null) {
@@ -103,13 +108,18 @@ public class KdsScheduler {
 
     @Scheduled(fixedDelay = 1000)
     public void countSupplyBaseBurger() {
-        if (linePos.equals("3")) return;
-        String countSBBurgerQuery = "SELECT COALESCE (COUNT(*), 0) FROM T_KDS_ITEM_DETAIL A "
+        if (linePos.equals("3"))
+            return;
+        String countSBBurgerQuery = "SELECT COALESCE (COUNT(*), 0) "
+                + " FROM T_KDS_ITEM_DETAIL A "
+                + " LEFT JOIN T_KDS_ITEM B ON A.BILL_NO = B.BILL_NO AND A.POS_CODE = B.POS_CODE "
+                + " AND A.DAY_SEQ = B.DAY_SEQ AND A.TRANS_DATE = B.TRANS_DATE AND A.ITEM_SEQ = B.ITEM_SEQ "
                 + " LEFT JOIN T_KDS_HEADER C ON A.BILL_NO = C.BILL_NO "
                 + " AND A.POS_CODE = C.POS_CODE AND A.DAY_SEQ = C.DAY_SEQ AND A.TRANS_DATE = C.TRANS_DATE "
-                + " JOIN M_GLOBAL D ON A.MENU_ITEM_CODE = D.CODE AND D.COND = 'ITEM' AND D.VALUE = 12 AND D.STATUS =  'A' "
-                + " WHERE A.ITEM_STATUS = 'P' AND A.OUTLET_CODE = '" + outletCode + "' AND C.ASSEMBLY_LINE_CODE='"
-                + linePos + "'";
+                + " LEFT JOIN M_GLOBAL D ON A.MENU_ITEM_CODE = D.CODE AND D.COND = 'ITEM' AND D.STATUS = 'A' "
+                + " WHERE A.ITEM_STATUS = 'P' AND A.ITEM_FLOW = 'B' AND A.OUTLET_CODE = '" + outletCode
+                + "' AND C.ASSEMBLY_LINE_CODE='" + linePos + "' ";
+
         Integer countQueueResult = jdbcTemplate.queryForObject(countSBBurgerQuery, new HashMap<>(), Integer.class);
         if (supplyBaseBurgerQueueOrder == null) {
             supplyBaseBurgerQueueOrder = countQueueResult;
@@ -127,11 +137,16 @@ public class KdsScheduler {
     @Scheduled(fixedDelay = 1000)
     public void countSupplyBasePasta() {
         if (linePos.equals("3")) return;
-        String countSBPastaQuery = "SELECT COALESCE (COUNT(*), 0) FROM T_KDS_ITEM_DETAIL A "
-                + " LEFT JOIN T_KDS_HEADER C ON A.BILL_NO = C.BILL_NO "
-                + " AND A.POS_CODE = C.POS_CODE AND A.DAY_SEQ = C.DAY_SEQ AND A.TRANS_DATE = C.TRANS_DATE "
-                + " JOIN M_GLOBAL D ON A.MENU_ITEM_CODE = D.CODE AND D.COND = 'ITEM' AND D.VALUE = 13 AND D.STATUS =  'A' "
-                + " WHERE A.ITEM_STATUS = 'P' AND A.OUTLET_CODE = '" + outletCode + "' AND C.ASSEMBLY_LINE_CODE='"+ linePos + "' ";
+        String countSBPastaQuery = "SELECT COALESCE (COUNT(*), 0) "
+        + " FROM T_KDS_ITEM_DETAIL A "
+        + " LEFT JOIN T_KDS_ITEM B ON A.BILL_NO = B.BILL_NO AND A.POS_CODE = B.POS_CODE "
+        + " AND A.DAY_SEQ = B.DAY_SEQ AND A.TRANS_DATE = B.TRANS_DATE AND A.ITEM_SEQ = B.ITEM_SEQ "
+        + " LEFT JOIN T_KDS_HEADER C ON A.BILL_NO = C.BILL_NO "
+        + " AND A.POS_CODE = C.POS_CODE AND A.DAY_SEQ = C.DAY_SEQ AND A.TRANS_DATE = C.TRANS_DATE "
+        + " LEFT JOIN M_GLOBAL D ON A.MENU_ITEM_CODE = D.CODE AND D.COND = 'ITEM' AND D.STATUS =  'A'"
+        + " WHERE A.ITEM_STATUS = 'P' AND A.ITEM_FLOW = 'P' AND A.OUTLET_CODE = '" + outletCode
+        + "' AND C.ASSEMBLY_LINE_CODE='" + linePos + "' ";
+
         Integer countQueueResult = jdbcTemplate.queryForObject(countSBPastaQuery, new HashMap<>(), Integer.class);
         if (supplyBasePastaQueueOrder == null) {
             supplyBasePastaQueueOrder = countQueueResult;
@@ -148,7 +163,8 @@ public class KdsScheduler {
 
     @Scheduled(fixedDelay = 1000)
     public void countDrinkBibQueueOrder() {
-        if (linePos.equals("3")) return;
+        if (linePos.equals("3"))
+            return;
         String countDrinkBibQueueOrderQuery = "SELECT COALESCE(COUNT(*), 0) "
                 + " FROM T_KDS_HEADER A "
                 + " JOIN T_KDS_ITEM B ON A.OUTLET_CODE = B.OUTLET_CODE AND A.POS_CODE = B.POS_CODE "
@@ -176,7 +192,8 @@ public class KdsScheduler {
 
     @Scheduled(fixedDelay = 1000)
     public void countDrinkIceCreamQueueOrder() {
-        if (linePos.equals("3")) return;
+        if (linePos.equals("3"))
+            return;
 
         String countDrinkIceCreamQueueOrderQuery = "SELECT COALESCE(COUNT(*),0) "
                 + " FROM T_KDS_HEADER A "
@@ -204,7 +221,8 @@ public class KdsScheduler {
 
     @Scheduled(fixedDelay = 1000)
     public void otherQueueOrder() {
-        if (linePos.equals("3")) return;
+        if (linePos.equals("3"))
+            return;
         String countDrinkOtherQueueOrderQuery = "SELECT COALESCE(COUNT(*), 0) "
                 + " FROM T_KDS_HEADER A "
                 + " JOIN T_KDS_ITEM B ON A.OUTLET_CODE = B.OUTLET_CODE AND A.POS_CODE = B.POS_CODE "
@@ -239,7 +257,8 @@ public class KdsScheduler {
 
         // count after assembly
         String countAfterAssemblyStatus = "SELECT COALESCE (COUNT(*),0) FROM T_KDS_HEADER tkh WHERE ASSEMBLY_STATUS <> 'AQ' "
-                + " AND DISPATCH_STATUS = 'DP' AND PICKUP_STATUS=NULL AND ASSEMBLY_LINE_CODE = '" + linePos
+                + " AND DISPATCH_STATUS = 'DP' AND (PICKUP_STATUS IS NULL OR PICKUP_STATUS = ' ') AND ASSEMBLY_LINE_CODE = '"
+                + linePos
                 + "' AND OUTLET_CODE = '" + outletCode + "' ";
         Integer countPickupAfterAssemblyResult = jdbcTemplate.queryForObject(countAfterAssemblyStatus,
                 new HashMap<>(), Integer.class);

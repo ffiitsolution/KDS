@@ -58,12 +58,14 @@ public class AssemblyDaoImpl implements AssemblyDao {
                                 + "                WHEN TKH.NOTES LIKE '%NO_URUT%' THEN 'POT' "
                                 + "                WHEN TKH.ORDER_TYPE = 'HMD' THEN 'HD' "
                                 + "                ELSE TKHI.TRANS_TYPE END) ITEM_TRANS_TYPE, TKHI.MENU_ITEM_CODE, "
-                                + "        MG.DESCRIPTION, CASE WHEN MG.VALUE IN (11, 12, 13) THEN 1 ELSE 0 END AS PREPARE_MENU_FLAG, "
+                                + "        MG.DESCRIPTION, "
+                                + "         0 AS PREPARE_MENU_FLAG, "
                                 + " TKHI.ITEM_QTY, TKHID.ITEM_DETAIL_SEQ, "
                                 + "        TKHID.MENU_ITEM_CODE MENU_ITEM_DETAIL_CODE, "
-                                + " MG2.DESCRIPTION DETAIL_DESCRIPTION, CASE WHEN MG.VALUE IN (11, 12, 13) THEN 1 ELSE 0 END AS PREPARE_MENU_DETAIL_FLAG, "
+                                + " MG2.DESCRIPTION DETAIL_DESCRIPTION, "
                                 + "        TKHID.ITEM_QTY ITEM_DETAIL_QTY, TKHID.ITEM_TYPE, "
                                 + "        TKHID.ITEM_FLOW, TKHID.ITEM_FLOW_ORI, TKHID.ITEM_STATUS, "
+                                + "        CASE WHEN TKHID.ITEM_FLOW_ORI IN ('F', 'B', 'P') THEN 1 ELSE 0 END AS PREPARE_MENU_DETAIL_FLAG, "
                                 + "        ((SYSDATE - TKH.ASSEMBLY_START_TIME) * 24 * 60 * 60) AS ASSEMBLY_QUEUE_TIME"
                                 + " FROM T_KDS_HEADER TKH "
                                 + " JOIN T_KDS_ITEM TKHI ON "
@@ -109,6 +111,7 @@ public class AssemblyDaoImpl implements AssemblyDao {
                                                 itemDetails.get(0).get("menuItemDetailCode"))) {
                                         map2.put("itemDetails", new ArrayList<>());
                                         map2.putAll(itemDetails.get(0));
+                                        map2.put("prepareMenuFlag", 1);
                                 } else {
                                         OptionalInt indexBumpFlag = IntStream.range(0, itemDetails.size())
                                                         .filter(i -> itemDetails.get(i).get("prepareMenuDetailFlag")
