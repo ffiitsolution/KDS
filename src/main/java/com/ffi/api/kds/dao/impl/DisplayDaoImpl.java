@@ -28,17 +28,19 @@ public class DisplayDaoImpl implements DisplayDao {
 
     public List<Map<String, Object>> displayReadyToServe() {
         String readyToServeQuery = "SELECT POS_CODE, KDS_NO, BILL_NO , ORDER_TYPE, TRANS_TYPE ,NOTES " +
-                "FROM T_KDS_HEADER WHERE ASSEMBLY_STATUS = 'AF' AND DISPATCH_STATUS = 'DP'" +
-                " AND ASSEMBLY_LINE_CODE = '" + linePos + "' AND OUTLET_CODE = '" + outletCode + "' AND ROWNUM < 11 "
-                +" ORDER BY TRANS_DATE, TO_NUMBER(KDS_NO), BILL_NO ";
+        " FROM T_KDS_HEADER WHERE PICKUP_STATUS = 'SRV' AND DISPATCH_STATUS = 'DF' " +
+        " AND ASSEMBLY_LINE_CODE = '" + linePos + "' AND OUTLET_CODE = '" + outletCode + "' AND ROWNUM < 11 "
+        +" ORDER BY TRANS_DATE, TO_NUMBER(KDS_NO), BILL_NO ";
+        
+        
         return jdbcTemplate.query(readyToServeQuery, new HashMap<>(), new DynamicRowMapper());
     }
 
     public List<Map<String, Object>> displayWaitingToServe() {
         String waitingToServe = "SELECT POS_CODE, KDS_NO, BILL_NO , ORDER_TYPE, TRANS_TYPE ,NOTES " +
-                " FROM T_KDS_HEADER WHERE PICKUP_STATUS = 'SRV' AND DISPATCH_STATUS = 'DF' " +
-                " AND ASSEMBLY_LINE_CODE = '" + linePos + "' AND OUTLET_CODE = '" + outletCode + "' AND ROWNUM < 10 "
-                +" ORDER BY TRANS_DATE, TO_NUMBER(KDS_NO), BILL_NO ";
+        "FROM T_KDS_HEADER WHERE ASSEMBLY_STATUS = 'AF' AND DISPATCH_STATUS = 'DP'" +
+        " AND ASSEMBLY_LINE_CODE = '" + linePos + "' AND OUTLET_CODE = '" + outletCode + "' AND ROWNUM < 10 "
+        +" ORDER BY TRANS_DATE, TO_NUMBER(KDS_NO), BILL_NO ";
 
         return jdbcTemplate.query(waitingToServe, new HashMap<>(), new DynamicRowMapper());
     }
