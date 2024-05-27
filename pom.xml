@@ -88,7 +88,8 @@
 	</dependencies>
 
 	<build>
-	<!-- <finalName>${project.artifactId}-${project.version}</finalName> -->
+	<!-- <finalName>${project.artifactId}-0</finalName> -->
+	<!-- <finalName>${project.artifactId}-3</finalName> -->
 	<finalName>${project.artifactId}</finalName>
 		<plugins>
 			<plugin>

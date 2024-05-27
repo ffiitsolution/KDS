@@ -50,7 +50,7 @@ public class AssemblyDaoImpl implements AssemblyDao {
 
         @Override
         public List<Map<String, Object>> queueOrder() {
-                String queueQuery = "SELECT TKH.OUTLET_CODE, TKH.POS_CODE, TKH.ASSEMBLY_START_TIME, TKH.START_TIME, MG4.DESCRIPTION OUTLET_TYPE_DESC, "
+                String queueQuery = "SELECT TKH.OUTLET_CODE, TKH.POS_CODE, TKH.ASSEMBLY_START_TIME, TKH.START_TIME, MPOS.POS_DESCRIPTION POS_DESC, "
                                 + "        TKH.DAY_SEQ, TKH.TRANS_DATE, TKH.KDS_NO, TKH.BILL_NO, MG3.DESCRIPTION AS ORDER_TYPE_DESC, "
                                 + "        TKH.ORDER_TYPE, TKH.TRANS_TYPE BILL_TRANS_TYPE, NVL(TKH.NOTES, '') NOTES , "
                                 + "        TKHI.ITEM_SEQ, (CASE "
@@ -77,8 +77,7 @@ public class AssemblyDaoImpl implements AssemblyDao {
                                 + " LEFT JOIN M_GLOBAL MG ON TKHI.MENU_ITEM_CODE = MG.CODE AND MG.COND = 'ITEM' "
                                 + " LEFT JOIN M_GLOBAL MG2 ON TKHID.MENU_ITEM_CODE = MG2.CODE AND MG2.COND = 'ITEM' "
                                 + " LEFT JOIN M_GLOBAL MG3 ON TKH.ORDER_TYPE = MG3.CODE AND MG3.COND = 'ORDER_TYPE' "
-                                + " LEFT JOIN M_OUTLET MO ON TKH.OUTLET_CODE = '"+outletCode+"' "
-                                + " LEFT JOIN M_GLOBAL MG4 ON MG4.COND ='OUTLET_TP' AND MO.TYPE=MG4.CODE "
+                                + " LEFT JOIN M_POS MPOS ON MPOS.OUTLET_CODE ='"+outletCode+"' AND MPOS.POS_CODE=TKH.POS_CODE "
                                 + " WHERE TKH.OUTLET_CODE = '" + outletCode
                                 + "' AND TKH.ASSEMBLY_STATUS = 'AQ' AND TKHI.MENU_ITEM_CODE <> '" + ctaPlu + "' "
                                 + "        AND MG.VALUE NOT IN ('99') AND TKH.ASSEMBLY_LINE_CODE = '" + linePos + "' "
@@ -95,7 +94,7 @@ public class AssemblyDaoImpl implements AssemblyDao {
                 groupByHeader.add("assemblyStartTime");
                 groupByHeader.add("startTime");
                 groupByHeader.add("orderTypeDesc");
-                groupByHeader.add("outletTypeDesc");
+                groupByHeader.add("posDesc");
                 List<Map<String, Object>> itemsResult = TransformGroupingData.transformData(queueResult, groupByHeader,
                                 "items");
                 for (Map<String, Object> map : itemsResult) {
