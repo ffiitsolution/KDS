@@ -51,7 +51,7 @@ public class PickupDaoImpl implements PickupDao {
                 " FROM T_KDS_HEADER A LEFT JOIN T_KDS_NAME B ON " +
                 " A.BILL_NO = B.BILL_NO AND A.POS_CODE = B.POS_CODE " +
                 " AND A.OUTLET_CODE = B.OUTLET_CODE WHERE " +
-                " A.ASSEMBLY_LINE_CODE = ('" + linePos + "') " +
+                " A.ASSEMBLY_LINE_CODE IN ('" + linePos + "') " +
                 " AND A.OUTLET_CODE = '" + outletCode + "' AND ASSEMBLY_STATUS <> 'AQ' " +
                 " AND (PICKUP_STATUS NOT IN ('CLM', 'UCL') OR PICKUP_STATUS IS NULL) " +
                 " ORDER BY PICKUP_START_TIME ASC";

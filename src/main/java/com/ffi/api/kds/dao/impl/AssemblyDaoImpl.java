@@ -95,6 +95,7 @@ public class AssemblyDaoImpl implements AssemblyDao {
                 groupByHeader.add("startTime");
                 groupByHeader.add("orderTypeDesc");
                 groupByHeader.add("posDesc");
+                groupByHeader.add("billTransType");
                 List<Map<String, Object>> itemsResult = TransformGroupingData.transformData(queueResult, groupByHeader,
                                 "items");
                 for (Map<String, Object> map : itemsResult) {
@@ -105,6 +106,7 @@ public class AssemblyDaoImpl implements AssemblyDao {
                         groupByItem.add("prepareMenuFlag");
                         groupByItem.add("description");
                         groupByItem.add("itemQty");
+                        groupByItem.add("itemTransType");
                         map.put("items", TransformGroupingData.transformData(items, groupByItem, "itemDetails"));
                         items = (List<Map<String, Object>>) map.get("items");
                         for (Map<String, Object> map2 : items) {
@@ -131,15 +133,13 @@ public class AssemblyDaoImpl implements AssemblyDao {
 
         @Override
         public Map<String, Object> getOrder(KdsHeaderRequest request) {
-                String headerQuery = "SELECT coalesce(mps.STAFF_NAME, ' ') CASHIER_STAFF_NAME, tkh.BILL_NO, tkh.NOTES, tkh.KDS_NO, tkh.TRANS_DATE, tkh.DATE_UPD, "
-                                +
-                                " tkh.ASSEMBLY_START_TIME, tkh.START_TIME, tkh.ORDER_TYPE, MG3.DESCRIPTION ORDER_TYPE_DESC, tkh.DAY_SEQ, tkh.POS_CODE "
-                                + " FROM T_KDS_HEADER tkh LEFT JOIN M_GLOBAL MG3 ON tkh.ORDER_TYPE = MG3.CODE " +
+                String headerQuery = "SELECT coalesce(mps.STAFF_NAME, ' ') CASHIER_STAFF_NAME, tkh.BILL_NO, tkh.NOTES, tkh.KDS_NO, tkh.TRANS_DATE, tkh.DATE_UPD, tkh.TRANS_TYPE BILL_TRANS_TYPE, " +
+                                " MPOS.POS_DESCRIPTION POS_DESC, tkh.ASSEMBLY_START_TIME, tkh.START_TIME, tkh.ORDER_TYPE, MG3.DESCRIPTION ORDER_TYPE_DESC, tkh.DAY_SEQ, tkh.POS_CODE "+
+                                " FROM T_KDS_HEADER tkh LEFT JOIN M_GLOBAL MG3 ON tkh.ORDER_TYPE = MG3.CODE " +
                                 " AND MG3.COND = 'ORDER_TYPE' AND MG3.STATUS = 'A' " +
-                                " LEFT JOIN T_POS_BILL tpb ON tpb.OUTLET_CODE = tkh.OUTLET_CODE AND tpb.BILL_NO = tkh.BILL_NO AND tpb.DAY_SEQ = tkh.DAY_SEQ AND tpb.POS_CODE = tkh.POS_CODE AND tpb.TRANS_DATE = tkh.TRANS_DATE "
-                                +
-                                " LEFT JOIN M_POS_STAFF mps ON mps.STAFF_POS_CODE = tpb.CASHIER_CODE AND mps.STATUS='A' "
-                                +
+                                " LEFT JOIN T_POS_BILL tpb ON tpb.OUTLET_CODE = tkh.OUTLET_CODE AND tpb.BILL_NO = tkh.BILL_NO AND tpb.DAY_SEQ = tkh.DAY_SEQ AND tpb.POS_CODE = tkh.POS_CODE AND tpb.TRANS_DATE = tkh.TRANS_DATE " +
+                                " LEFT JOIN M_POS_STAFF mps ON mps.STAFF_POS_CODE = tpb.CASHIER_CODE AND mps.STATUS='A' " +
+                                " LEFT JOIN M_POS MPOS ON MPOS.OUTLET_CODE ='"+outletCode+"' AND MPOS.POS_CODE=TKH.POS_CODE " +
                                 " WHERE tkh.BILL_NO = :billNo AND tkh.KDS_NO =:kdsNo " +
                                 " AND tkh.POS_CODE = :posCode AND tkh.DAY_SEQ = :daySeq ";
                 Map<String, Object> headerResult = jdbcTemplate.queryForObject(headerQuery, new MapSqlParameterSource()
