@@ -49,7 +49,7 @@ public class DisplayDaoImpl implements DisplayDao {
         String dateString = KdsService.dateformatDDMMMYYYY.format(date);
         
         String waitingToServe = "SELECT POS_CODE, KDS_NO, BILL_NO , ORDER_TYPE, TRANS_TYPE ,NOTES " +
-        "FROM T_KDS_HEADER WHERE (PICKUP_STATUS NOT IN ('CLM', 'UCL') OR PICKUP_STATUS IS NULL) AND TRANS_DATE = '"+dateString+"'" +
+        "FROM T_KDS_HEADER WHERE (PICKUP_STATUS NOT IN ('CLM', 'UCL', 'SRV') OR PICKUP_STATUS IS NULL) AND TRANS_DATE = '"+dateString+"'" +
         " AND ASSEMBLY_LINE_CODE = '" + linePos + "' AND OUTLET_CODE = '" + outletCode + "' AND ROWNUM < 10 "
         +" ORDER BY TRANS_DATE, TO_NUMBER(KDS_NO), BILL_NO ";
 
