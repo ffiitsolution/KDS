@@ -271,7 +271,7 @@ public class KdsScheduler {
                 new HashMap<>(), Integer.class);
 
         String countClaimUnclaimStatus = "SELECT COALESCE (COUNT(*),0) FROM T_KDS_HEADER tkh WHERE ASSEMBLY_STATUS <> 'AQ' "
-                + " AND PICKUP_STATUS IN ('CLM', 'UCL') AND ASSEMBLY_LINE_CODE = '" + linePos + "' AND OUTLET_CODE = '"
+                + " AND PICKUP_STATUS IN ('CLM', 'UCL', 'SRV') AND ASSEMBLY_LINE_CODE = '" + linePos + "' AND OUTLET_CODE = '"
                 + outletCode + "' "
                 + " AND TKH.TRANS_DATE BETWEEN '" + startDateString + "' AND '" + endDateString + "' ";
         Integer countPickupClaimUnclaimResult = jdbcTemplate.queryForObject(countClaimUnclaimStatus,
