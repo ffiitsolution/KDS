@@ -10,11 +10,13 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ffi.api.kds.service.KdsService;
 import com.ffi.api.kds.service.SocketTriggerService;
 
 /**
@@ -27,6 +29,9 @@ public class KdsController {
 
     @Autowired
     SocketTriggerService socketTriggerService;
+
+    @Autowired
+    KdsService kdsService;
 
     @Value("${app.outletCode}")
     private String outletCode;
@@ -66,5 +71,10 @@ public class KdsController {
         this.socketTriggerService.refreshDrinkIceCream(UUID.randomUUID().toString()+": testing drink icecream refresh..");
         this.socketTriggerService.refreshDrinkOther(UUID.randomUUID().toString()+": testing drink other refresh..");
         this.socketTriggerService.refreshPickup(UUID.randomUUID().toString()+": testing pickup refresh..");
+    }
+
+    @GetMapping(value = "/treshold-setting")
+    public @ResponseBody ResponseEntity<?> kdsTreshholdSetting() {
+        return ResponseEntity.ok(kdsService.kdsTreshholdSetting());
     }
 }
