@@ -203,7 +203,7 @@ public class KdsScheduler {
                 + " AND A.POS_CODE = C.POS_CODE AND A.DAY_SEQ = C.DAY_SEQ "
                 + " AND A.BILL_NO = C.BILL_NO AND B.ITEM_SEQ = C.ITEM_SEQ "
                 + " WHERE A.ASSEMBLY_LINE_CODE = '" + linePos + "' "
-                + " AND A.OUTLET_CODE = '" + outletCode + "' AND C.ITEM_FLOW = 'O' AND ITEM_STATUS <> 'F'";
+                + " AND A.OUTLET_CODE = '" + outletCode + "' AND C.ITEM_FLOW = 'I' AND ITEM_STATUS <> 'F'";
         Integer countDrinkIceCreamQueueOrderResult = jdbcTemplate.queryForObject(countDrinkIceCreamQueueOrderQuery,
                 new HashMap<>(), Integer.class);
         if (drinkIceCreamQueueOrder == null) {
@@ -231,7 +231,7 @@ public class KdsScheduler {
                 + " AND A.POS_CODE = C.POS_CODE AND A.DAY_SEQ = C.DAY_SEQ "
                 + " AND A.BILL_NO = C.BILL_NO AND B.ITEM_SEQ = C.ITEM_SEQ "
                 + " WHERE A.ASSEMBLY_LINE_CODE = '" + linePos + "' "
-                + " AND A.OUTLET_CODE = '" + outletCode + "' AND C.ITEM_FLOW = 'I' AND ITEM_STATUS <> 'F'";
+                + " AND A.OUTLET_CODE = '" + outletCode + "' AND C.ITEM_FLOW = 'O' AND ITEM_STATUS <> 'F'";
 
         Integer countDrinkOtherOrderResult = jdbcTemplate.queryForObject(countDrinkOtherQueueOrderQuery,
                 new HashMap<>(), Integer.class);

@@ -116,7 +116,9 @@ public class AssemblyDaoImpl implements AssemblyDao {
                                                 itemDetails.get(0).get("menuItemDetailCode"))) {
                                         map2.put("itemDetails", new ArrayList<>());
                                         map2.putAll(itemDetails.get(0));
-                                        map2.put("prepareMenuFlag", 1);
+                                        if (Objects.equals(itemDetails.get(0).get("prepareMenuDetailFlag"), true)) {
+                                                map2.put("prepareMenuFlag", 1);
+                                        }
                                 } else {
                                         OptionalInt indexBumpFlag = IntStream.range(0, itemDetails.size())
                                                         .filter(i -> itemDetails.get(i).get("prepareMenuDetailFlag")
