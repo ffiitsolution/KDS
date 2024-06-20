@@ -283,7 +283,7 @@ public class AssemblyDaoImpl implements AssemblyDao {
                                 + " WHERE TKH.OUTLET_CODE = '" + outletCode + "' AND TKH.ASSEMBLY_STATUS = 'AF' "
                                 + "        AND TKH.ASSEMBLY_LINE_CODE = '" + linePos + "' AND TKH.TRANS_DATE='"
                                 + transDate + "' "
-                                + " ORDER BY to_number(TKH.KDS_NO) DESC, TKH.START_TIME, TKH.BILL_NO ";
+                                + " ORDER BY to_number(TKH.KDS_NO) DESC, TKH.START_TIME";
 
                 return jdbcTemplate.query(historyAssemblyQuery, new DynamicRowMapper());
         }

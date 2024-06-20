@@ -1,9 +1,6 @@
 package com.ffi.api.kds.dao.impl;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -54,9 +51,21 @@ public class PickupDaoImpl implements PickupDao {
                 " A.ASSEMBLY_LINE_CODE IN ('" + linePos + "') " +
                 " AND A.OUTLET_CODE = '" + outletCode + "' AND ASSEMBLY_STATUS <> 'AQ' " +
                 " AND (PICKUP_STATUS NOT IN ('CLM', 'UCL') OR PICKUP_STATUS IS NULL) " +
-                " ORDER BY PICKUP_START_TIME ASC";
+                " ORDER BY PICKUP_START_TIME DESC";
+        List<Map<String,Object>> pickupList = jdbcTemplate.query(queuePickupQuery, new HashMap<>(), new DynamicRowMapper());
 
-        return jdbcTemplate.query(queuePickupQuery, new HashMap<>(), new DynamicRowMapper());
+        var resultList = new ArrayList<Map<String, Object>>();
+        var unservedList = new ArrayList<Map<String, Object>>();
+        for(Map<String, Object> pickUp: pickupList) {
+            var value = pickUp.get("pickupStatus");
+            if (value.equals(" ")) {
+                resultList.add(pickUp);
+            } else {
+                unservedList.add(pickUp);
+            }
+        }
+        resultList.addAll(unservedList);
+        return resultList;
     }
 
     @Override
