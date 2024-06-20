@@ -10,13 +10,16 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 
 import com.ffi.api.kds.dto.ExceptionResponse;
+import javax.servlet.http.HttpServletRequest;
 
 @ControllerAdvice
 public class ExceptionHandler {
     
     @org.springframework.web.bind.annotation.ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handleValidationExceptions(
-            MethodArgumentNotValidException ex, javax.servlet.http.HttpServletRequest request) {
+            MethodArgumentNotValidException ex,
+            HttpServletRequest request
+    ) {
         List<String> errors = new ArrayList<>();
         ex.getBindingResult().getAllErrors().forEach((error) -> {
             // String fieldName = ((FieldError) error).getField();
@@ -24,7 +27,7 @@ public class ExceptionHandler {
             errors.add(errorMessage);
         });
         ExceptionResponse exceptionResponse = new ExceptionResponse();
-        exceptionResponse.setCode(400);
+        exceptionResponse.setCode(HttpStatus.BAD_REQUEST.value());
         exceptionResponse.setMessage(String.join(",", errors));
         exceptionResponse.setPath(request.getRequestURI());
         exceptionResponse.setTimestamp(new Date());
@@ -32,11 +35,13 @@ public class ExceptionHandler {
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(Exception.class)
-    public ResponseEntity<ExceptionResponse> handleException(Exception ex,
-            javax.servlet.http.HttpServletRequest request) {
+    public ResponseEntity<ExceptionResponse> handleException(
+            Exception ex,
+            HttpServletRequest request
+    ) {
         ex.printStackTrace();
         ExceptionResponse exceptionResponse = new ExceptionResponse();
-        exceptionResponse.setCode(500);
+        exceptionResponse.setCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
         exceptionResponse.setMessage(ex.getMessage());
         exceptionResponse.setPath(request.getRequestURI());
         exceptionResponse.setTimestamp(new Date());
