@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -54,6 +55,18 @@ public class DisplayDaoImpl implements DisplayDao {
         +" ORDER BY TRANS_DATE, TO_NUMBER(KDS_NO), BILL_NO ";
 
         return jdbcTemplate.query(waitingToServe, new HashMap<>(), new DynamicRowMapper());
+    }
+
+    @Override
+    public String getDisplayText() {
+        String runningText = "SELECT DESCRIPTION FROM M_GLOBAL WHERE CODE = 'ADV001' AND STATUS = 'A'";
+        try {
+            var result =  jdbcTemplate.queryForObject(runningText, new HashMap<>(), String.class);
+            return result;
+        } catch (DataAccessException e) {
+            System.err.format("No advertisement found for CODE : %s\n", "ADV001");
+            return "";
+        }
     }
 
 }

@@ -25,4 +25,6 @@ public interface DisplayDao {
      * @author <a href="https://www.linkedin.com/in/muhammad-dani-ramadhan-645356203">Dani Ramadhan</a> 
      */
     public List<Map<String, Object>> displayWaitingToServe();
+
+    public String getDisplayText();
 }
