@@ -138,15 +138,18 @@ public class AssemblyDaoImpl implements AssemblyDao {
 
         @Override
         public Map<String, Object> getOrder(KdsHeaderRequest request) {
-                String headerQuery = "SELECT coalesce(mps.STAFF_NAME, ' ') CASHIER_STAFF_NAME, tkh.BILL_NO, tkh.NOTES, tkh.KDS_NO, tkh.TRANS_DATE, tkh.DATE_UPD, tkh.TRANS_TYPE BILL_TRANS_TYPE, " +
-                                " MPOS.POS_DESCRIPTION POS_DESC, tkh.ASSEMBLY_START_TIME, tkh.START_TIME, tkh.ORDER_TYPE, MG3.DESCRIPTION ORDER_TYPE_DESC, tkh.DAY_SEQ, tkh.POS_CODE "+
+                String headerQuery =
+                                " SELECT a.CASHIER_STAFF_NAME,BILL_NO,a.NOTES,a.KDS_NO,a.TRANS_DATE,a.DATE_UPD,a.BILL_TRANS_TYPE, a.POS_DESC,a.ASSEMBLY_START_TIME,a.START_TIME,ORDER_TYPE,a.ORDER_TYPE_DESC,DAY_SEQ,a.POS_CODE,B.DESCRIPTION AS CODE_DESCRIPTION" +
+                                " FROM (SELECT coalesce(mps.STAFF_NAME, ' ') CASHIER_STAFF_NAME, tkh.BILL_NO, tkh.NOTES, tkh.KDS_NO, tkh.TRANS_DATE, tkh.DATE_UPD, tkh.TRANS_TYPE BILL_TRANS_TYPE, " +
+                                " MPOS.POS_DESCRIPTION POS_DESC, tkh.ASSEMBLY_START_TIME, tkh.START_TIME, tkh.ORDER_TYPE, MG3.DESCRIPTION ORDER_TYPE_DESC, tkh.DAY_SEQ, tkh.POS_CODE,substr(tkh.bill_no,9,1) as CODE " +
                                 " FROM T_KDS_HEADER tkh LEFT JOIN M_GLOBAL MG3 ON tkh.ORDER_TYPE = MG3.CODE " +
                                 " AND MG3.COND = 'ORDER_TYPE' AND MG3.STATUS = 'A' " +
                                 " LEFT JOIN T_POS_BILL tpb ON tpb.OUTLET_CODE = tkh.OUTLET_CODE AND tpb.BILL_NO = tkh.BILL_NO AND tpb.DAY_SEQ = tkh.DAY_SEQ AND tpb.POS_CODE = tkh.POS_CODE AND tpb.TRANS_DATE = tkh.TRANS_DATE " +
                                 " LEFT JOIN M_POS_STAFF mps ON mps.STAFF_POS_CODE = tpb.CASHIER_CODE AND mps.STATUS='A' " +
-                                " LEFT JOIN M_POS MPOS ON MPOS.OUTLET_CODE ='"+outletCode+"' AND MPOS.POS_CODE=TKH.POS_CODE " +
-                                " WHERE tkh.BILL_NO = :billNo AND tkh.KDS_NO =:kdsNo " +
-                                " AND tkh.POS_CODE = :posCode AND tkh.DAY_SEQ = :daySeq ";
+                                " LEFT JOIN M_POS MPOS ON MPOS.OUTLET_CODE ='"+outletCode+"' AND MPOS.POS_CODE=TKH.POS_CODE) A " +
+                                " LEFT JOIN M_GLOBAL B ON B.CODE = A.CODE and B.COND = 'TRANS_CODE' " +
+                                " WHERE A.BILL_NO = :billNo AND A.KDS_NO =:kdsNo " +
+                                " AND A.POS_CODE = :posCode AND A.DAY_SEQ = :daySeq ";
                 Map<String, Object> headerResult = jdbcTemplate.queryForObject(headerQuery, new MapSqlParameterSource()
                                 .addValue("billNo", request.getBillNo())
                                 .addValue("kdsNo", request.getKdsNo())
