@@ -155,7 +155,6 @@ public class AssemblyDaoImpl implements AssemblyDao {
                                 .addValue("kdsNo", request.getKdsNo())
                                 .addValue("posCode", request.getPosCode())
                                 .addValue("daySeq", request.getDaySeq()), new DynamicRowMapper());
-
                 String billno = headerResult.get("billNo").toString();
                 BigDecimal dayseq = (BigDecimal) headerResult.get("daySeq");
                 String poscode = headerResult.get("posCode").toString();
