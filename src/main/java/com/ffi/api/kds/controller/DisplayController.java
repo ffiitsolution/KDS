@@ -30,4 +30,9 @@ public class DisplayController {
     public @ResponseBody ResponseEntity<?> displayWaitingToServe() {
         return ResponseEntity.ok(displayService.displayWaitingToServe());
     }
+
+    @GetMapping("/running-text")
+    public @ResponseBody ResponseEntity<String> getRunningText() {
+        return ResponseEntity.ok(displayService.getDisplayText());
+    }
 }

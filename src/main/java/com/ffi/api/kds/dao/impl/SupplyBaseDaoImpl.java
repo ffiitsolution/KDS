@@ -103,7 +103,7 @@ public class SupplyBaseDaoImpl implements SupplyBaseDao {
 
                 Date timestamp = new Date();
                 SimpleDateFormat timeFormatter = new SimpleDateFormat("HHmmss");
-                jdbcTemplate.update(doneItemQuery, new MapSqlParameterSource()
+                int rowsUpdated = jdbcTemplate.update(doneItemQuery, new MapSqlParameterSource()
                                 .addValue("billNo", request.getBillNo())
                                 .addValue("posCode", request.getPosCode())
                                 .addValue("daySeq", request.getDaySeq())
@@ -113,6 +113,10 @@ public class SupplyBaseDaoImpl implements SupplyBaseDao {
                                 .addValue("outletCode", outletCode)
                                 .addValue("timeString", timeFormatter.format(timestamp))
                                 .addValue("timestamp", timestamp));
+
+                if (rowsUpdated == 0) {
+                        System.err.format("LOG : Update data failed for Bill No: %s ", request.getBillNo());
+                }
                 this.socketTriggerService.refreshAssembly(UUID.randomUUID().toString());
                 return request;
         }

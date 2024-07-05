@@ -93,7 +93,7 @@ public class DrinkDaoImpl implements DrinkDao {
 
         Date timestamp = new Date();
         SimpleDateFormat timeFormatter = new SimpleDateFormat("HHmmss");
-        jdbcTemplate.update(doneItemQuery, new MapSqlParameterSource()
+        int rowsUpdated = jdbcTemplate.update(doneItemQuery, new MapSqlParameterSource()
                 .addValue("billNo", request.getBillNo())
                 .addValue("posCode", request.getPosCode())
                 .addValue("transType", request.getTransType())
@@ -101,6 +101,10 @@ public class DrinkDaoImpl implements DrinkDao {
                 .addValue("menuItemCode", request.getMenuItemCode())
                 .addValue("timeString", timeFormatter.format(timestamp))
                 .addValue("timestamp", timestamp));
+
+        if (rowsUpdated == 0) {
+            System.err.format("LOG : Update data failed for Bill No: %s ", request.getBillNo());
+        }
         return request;
     }
 

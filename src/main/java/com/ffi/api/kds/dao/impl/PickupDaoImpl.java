@@ -33,13 +33,8 @@ public class PickupDaoImpl implements PickupDao {
 
     @Override
     public List<Map<String, Object>> queuePickup() {
-        String queuePickupQuery = "SELECT A.POS_CODE, A.DAY_SEQ, CASE " +
-                " WHEN A.BILL_NO LIKE '%T%' " +
-                " AND NVL(B.CUSTOMER_NAME, ' ') != ' ' THEN SUBSTR(A.BILL_NO, 0, 3) " +
-                " WHEN A.BILL_NO LIKE '%T%' " +
-                " AND NVL(B.CUSTOMER_NAME, ' ') = ' ' THEN SUBSTR(A.BILL_NO, 10, 5) " +
-                " ELSE NVL(B.TABLE_NO, A.KDS_NO) " +
-                " END AS KDS_NO, A.BILL_NO,A.ORDER_TYPE, A.ORDER_TYPE, A.PICKUP_STATUS, " +
+        String queuePickupQuery = "SELECT A.POS_CODE, A.DAY_SEQ, " +
+                " A.KDS_NO, A.BILL_NO,A.ORDER_TYPE, A.ORDER_TYPE, A.PICKUP_STATUS, " +
                 " A.ASSEMBLY_LINE_CODE, A.TRANS_TYPE, A.PICKUP_START_TIME, SYSDATE, " +
                 " ((SYSDATE - A.START_TIME) * 24 * 60 * 60) AS PROCESS_TIME, " +
                 " ((SYSDATE - A.PICKUP_START_TIME) * 24 * 60 * 60) AS PICKUP_TIME, " +
@@ -51,21 +46,8 @@ public class PickupDaoImpl implements PickupDao {
                 " A.ASSEMBLY_LINE_CODE IN ('" + linePos + "') " +
                 " AND A.OUTLET_CODE = '" + outletCode + "' AND ASSEMBLY_STATUS <> 'AQ' " +
                 " AND (PICKUP_STATUS NOT IN ('CLM', 'UCL') OR PICKUP_STATUS IS NULL) " +
-                " ORDER BY PICKUP_START_TIME DESC";
-        List<Map<String,Object>> pickupList = jdbcTemplate.query(queuePickupQuery, new HashMap<>(), new DynamicRowMapper());
-
-        var resultList = new ArrayList<Map<String, Object>>();
-        var unservedList = new ArrayList<Map<String, Object>>();
-        for(Map<String, Object> pickUp: pickupList) {
-            var value = pickUp.get("pickupStatus");
-            if (value.equals(" ")) {
-                resultList.add(pickUp);
-            } else {
-                unservedList.add(pickUp);
-            }
-        }
-        resultList.addAll(unservedList);
-        return resultList;
+                " ORDER BY PICKUP_STATUS ASC, PICKUP_START_TIME DESC";
+        return jdbcTemplate.query(queuePickupQuery, new HashMap<>(), new DynamicRowMapper());
     }
 
     @Override
@@ -80,7 +62,7 @@ public class PickupDaoImpl implements PickupDao {
                 + "     AND DAY_SEQ = :daySeq"
                 + "     AND OUTLET_CODE = :outletCode AND (PICKUP_STATUS IS NULL OR PICKUP_STATUS = ' ')";
         Date timestamp = new Date();
-        jdbcTemplate.update(serveQuery, new MapSqlParameterSource()
+        int rowsUpdated = jdbcTemplate.update(serveQuery, new MapSqlParameterSource()
                 .addValue("billNo", request.getBillNo())
                 .addValue("kdsNo", request.getKdsNo())
                 .addValue("posCode", request.getPosCode())
@@ -88,6 +70,15 @@ public class PickupDaoImpl implements PickupDao {
                 .addValue("outletCode", outletCode)
                 .addValue("timeString", KdsService.timeformatHHmmss.format(timestamp))
                 .addValue("timestamp", timestamp));
+
+        if (rowsUpdated == 0) {
+            System.err.format(
+                    "LOG : Update data failed to SRV for KDS: %s\n",
+                    request.getKdsNo()
+            );
+            throw new RuntimeException("Update data failed to SRV for KDS: " + request.getKdsNo());
+        }
+
         return request;
     }
 
@@ -103,7 +94,7 @@ public class PickupDaoImpl implements PickupDao {
                 + "     AND DAY_SEQ = :daySeq"
                 + "     AND OUTLET_CODE = :outletCode AND PICKUP_STATUS='SRV'";
         Date timestamp = new Date();
-        jdbcTemplate.update(claimQuery, new MapSqlParameterSource()
+        int rowsUpdated = jdbcTemplate.update(claimQuery, new MapSqlParameterSource()
                 .addValue("billNo", request.getBillNo())
                 .addValue("kdsNo", request.getKdsNo())
                 .addValue("posCode", request.getPosCode())
@@ -111,6 +102,14 @@ public class PickupDaoImpl implements PickupDao {
                 .addValue("outletCode", outletCode)
                 .addValue("timeString", KdsService.timeformatHHmmss.format(timestamp))
                 .addValue("timestamp", timestamp));
+
+        if (rowsUpdated == 0) {
+            System.err.format(
+                    "LOG : Update data failed to CLM for KDS: %s\n",
+                    request.getKdsNo()
+            );
+            throw new RuntimeException("Update data failed  to CLM for KDS: " + request.getKdsNo());
+        }
         return request;
     }
 
@@ -126,7 +125,7 @@ public class PickupDaoImpl implements PickupDao {
                 + "     AND DAY_SEQ = :daySeq"
                 + "     AND OUTLET_CODE = :outletCode AND PICKUP_STATUS='SRV'";
         Date timestamp = new Date();
-        jdbcTemplate.update(unclaimQuery, new MapSqlParameterSource()
+        int rowsUpdated = jdbcTemplate.update(unclaimQuery, new MapSqlParameterSource()
                 .addValue("billNo", request.getBillNo())
                 .addValue("kdsNo", request.getKdsNo())
                 .addValue("posCode", request.getPosCode())
@@ -134,6 +133,14 @@ public class PickupDaoImpl implements PickupDao {
                 .addValue("outletCode", outletCode)
                 .addValue("timeString", KdsService.timeformatHHmmss.format(timestamp))
                 .addValue("timestamp", timestamp));
+
+        if (rowsUpdated == 0) {
+            System.err.format(
+                    "LOG : Update data failed to UCL for KDS: %s\n",
+                    request.getKdsNo()
+            );
+            throw new RuntimeException("Update data failed to UCL for KDS: " + request.getKdsNo());
+        }
         return request;
     }
 }

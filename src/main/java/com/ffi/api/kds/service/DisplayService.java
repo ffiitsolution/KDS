@@ -23,4 +23,8 @@ public class DisplayService {
     public List<Map<String, Object>> displayWaitingToServe() {
         return this.displayDao.displayWaitingToServe();
     }
+
+    public String getDisplayText() {
+        return this.displayDao.getDisplayText();
+    }
 }

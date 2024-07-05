@@ -225,7 +225,7 @@ public class AssemblyDaoImpl implements AssemblyDao {
                                 + "     AND ASSEMBLY_STATUS = 'AQ'";
 
                 Date timestamp = new Date();
-                jdbcTemplate.update(doneAssemblyQuery, new MapSqlParameterSource()
+                int rowsUpdated = jdbcTemplate.update(doneAssemblyQuery, new MapSqlParameterSource()
                                 .addValue("billNo", kds.getBillNo())
                                 .addValue("kdsNo", kds.getKdsNo())
                                 .addValue("posCode", kds.getPosCode())
@@ -233,6 +233,10 @@ public class AssemblyDaoImpl implements AssemblyDao {
                                 .addValue("outletCode", outletCode)
                                 .addValue("timeString", KdsService.timeformatHHmmss.format(timestamp))
                                 .addValue("timestamp", timestamp));
+
+                if (rowsUpdated == 0) {
+                    System.err.format("LOG : Update data failed for KDS: %s \n", kds.getKdsNo());
+                }
                 return kds;
         }
 
@@ -244,7 +248,7 @@ public class AssemblyDaoImpl implements AssemblyDao {
                                 + " AND ITEM_SEQ=:itemSeq AND ITEM_DETAIL_SEQ=:itemDetailSeq AND TRANS_DATE=:transDate";
                 Date timestamp = new Date();
                 SimpleDateFormat timeFormatter = new SimpleDateFormat("HHmmss");
-                jdbcTemplate.update(bumpQuery, new MapSqlParameterSource()
+                int rowsUpdated = jdbcTemplate.update(bumpQuery, new MapSqlParameterSource()
                                 .addValue("billNo", request.getBillNo())
                                 .addValue("posCode", request.getPosCode())
                                 .addValue("daySeq", request.getDaySeq())
@@ -254,6 +258,10 @@ public class AssemblyDaoImpl implements AssemblyDao {
                                 .addValue("outletCode", outletCode)
                                 .addValue("timeString", timeFormatter.format(timestamp))
                                 .addValue("timestamp", timestamp));
+
+                if (rowsUpdated == 0) {
+                    System.err.format("LOG : Update data failed for Bill No: %s ", request.getBillNo());
+                }
 
                 socketTriggerService.refreshAssembly(UUID.randomUUID().toString());
                 socketTriggerService.refreshSupplyBaseFried(UUID.randomUUID().toString());
@@ -285,7 +293,7 @@ public class AssemblyDaoImpl implements AssemblyDao {
                                 + " WHERE TKH.OUTLET_CODE = '" + outletCode + "' AND TKH.ASSEMBLY_STATUS = 'AF' "
                                 + "        AND TKH.ASSEMBLY_LINE_CODE = '" + linePos + "' AND TKH.TRANS_DATE='"
                                 + transDate + "' "
-                                + " ORDER BY to_number(TKH.KDS_NO) DESC, TKH.START_TIME";
+                                + " ORDER BY TKH.TIME_UPD DESC";
 
                 return jdbcTemplate.query(historyAssemblyQuery, new DynamicRowMapper());
         }
