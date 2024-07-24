@@ -33,6 +33,7 @@ public class AssemblyDaoImpl implements AssemblyDao {
         private String linePos;
         @Value("${app.charge.take.away.plu}")
         private String ctaPlu;
+        private String storeBrand;
 
         private final NamedParameterJdbcTemplate jdbcTemplate;
         private final SocketTriggerService socketTriggerService;
@@ -41,15 +42,20 @@ public class AssemblyDaoImpl implements AssemblyDao {
         public AssemblyDaoImpl(final NamedParameterJdbcTemplate jdbcTemplate,
                         final SocketTriggerService socketTriggerService,
                         final @Value("${app.line.pos}") String linePos,
+                        final @Value("${app.store.brand}") String storeBrand,
                         final KdsService kdsService) {
                 this.jdbcTemplate = jdbcTemplate;
                 this.linePos = linePos;
                 this.kdsService = kdsService;
                 this.socketTriggerService = socketTriggerService;
+                this.storeBrand = storeBrand;
         }
 
         @Override
         public List<Map<String, Object>> queueOrder() {
+            if (linePos.equals("0") && storeBrand.equalsIgnoreCase("tacobell")) {
+                return this.drinkQueueOrder();
+            }
                 String queueQuery = "SELECT TKH.OUTLET_CODE, TKH.POS_CODE, TKH.ASSEMBLY_START_TIME, TKH.START_TIME, MPOS.POS_DESCRIPTION POS_DESC, "
                                 + "        TKH.DAY_SEQ, TKH.TRANS_DATE, TKH.KDS_NO, TKH.BILL_NO, MG3.DESCRIPTION AS ORDER_TYPE_DESC, "
                                 + "        TKH.ORDER_TYPE, TKH.TRANS_TYPE BILL_TRANS_TYPE, NVL(TKH.NOTES, '') NOTES , "
@@ -134,6 +140,65 @@ public class AssemblyDaoImpl implements AssemblyDao {
                         }
                 }
                 return itemsResult;
+        }
+
+        private List<Map<String, Object>> drinkQueueOrder() {
+            String drinkQueueQuery = "SELECT TKH.OUTLET_CODE, TKH.POS_CODE, TKH.ASSEMBLY_START_TIME, TKH.START_TIME, MPOS.POS_DESCRIPTION POS_DESC, "
+                    + "        TKH.DAY_SEQ, TKH.TRANS_DATE, TKH.KDS_NO, TKH.BILL_NO, MG3.DESCRIPTION AS ORDER_TYPE_DESC, "
+                    + "        TKH.ORDER_TYPE, TKH.TRANS_TYPE BILL_TRANS_TYPE, NVL(TKH.NOTES, '') NOTES , "
+                    + "        TKHI.ITEM_SEQ, (CASE "
+                    + "                WHEN TKH.ORDER_TYPE = 'DRT' THEN 'DT' "
+                    + "                WHEN TKH.NOTES LIKE '%NO_URUT%' THEN 'POT' "
+                    + "                WHEN TKH.ORDER_TYPE = 'HMD' THEN 'HD' "
+                    + "                ELSE TKHI.TRANS_TYPE END) ITEM_TRANS_TYPE, TKHI.MENU_ITEM_CODE, "
+                    + "        MG.DESCRIPTION, MG.VALUE AS VALUE_ITEM_DETAIL, "
+                    + "         0 AS PREPARE_MENU_FLAG, "
+                    + " TKHI.ITEM_QTY, TKHID.ITEM_DETAIL_SEQ, "
+                    + "        TKHID.MENU_ITEM_CODE MENU_ITEM_DETAIL_CODE, "
+                    + " MG2.DESCRIPTION DETAIL_DESCRIPTION, "
+                    + "        TKHID.ITEM_QTY ITEM_DETAIL_QTY, TKHID.ITEM_TYPE, "
+                    + "        TKHID.ITEM_FLOW, TKHID.ITEM_FLOW_ORI, TKHID.ITEM_STATUS, "
+                    + "        ((SYSDATE - TKH.ASSEMBLY_START_TIME) * 24 * 60 * 60) AS ASSEMBLY_QUEUE_TIME"
+                    + " FROM T_KDS_HEADER TKH "
+                    + " JOIN T_KDS_ITEM TKHI ON "
+                    + "        TKH.OUTLET_CODE = TKHI.OUTLET_CODE AND TKH.POS_CODE = TKHI.POS_CODE "
+                    + "        AND TKH.DAY_SEQ = TKHI.DAY_SEQ AND TKH.BILL_NO = TKHI.BILL_NO "
+                    + " JOIN T_KDS_ITEM_DETAIL TKHID ON TKH.OUTLET_CODE = TKHID.OUTLET_CODE "
+                    + "        AND TKH.POS_CODE = TKHID.POS_CODE AND TKH.DAY_SEQ = TKHID.DAY_SEQ "
+                    + "        AND TKH.BILL_NO = TKHID.BILL_NO AND TKHI.ITEM_SEQ = TKHID.ITEM_SEQ "
+                    + " LEFT JOIN M_GLOBAL MG ON TKHI.MENU_ITEM_CODE = MG.CODE AND MG.COND = 'ITEM' "
+                    + " LEFT JOIN M_GLOBAL MG2 ON TKHID.MENU_ITEM_CODE = MG2.CODE AND MG2.COND = 'ITEM' "
+                    + " LEFT JOIN M_GLOBAL MG3 ON TKH.ORDER_TYPE = MG3.CODE AND MG3.COND = 'ORDER_TYPE' "
+                    + " LEFT JOIN M_POS MPOS ON MPOS.OUTLET_CODE ='"+outletCode+"' AND MPOS.POS_CODE=TKH.POS_CODE "
+                    + " WHERE TKH.OUTLET_CODE = '" + outletCode
+                    + "' AND TKH.ASSEMBLY_STATUS = 'AQ' AND TKHI.MENU_ITEM_CODE <> '" + ctaPlu + "' "
+                    + "        AND MG.VALUE NOT IN ('99') AND MG2.VALUE NOT IN ('1')"
+                    + " ORDER BY TKH.START_TIME ASC, TKH.BILL_NO, TKHI.ITEM_SEQ, TKHID.ITEM_DETAIL_SEQ ";
+            List<Map<String, Object>> queueResult = jdbcTemplate.query(drinkQueueQuery, new DynamicRowMapper());
+            List<String> groupByHeader = new LinkedList<>();
+            groupByHeader.add("kdsNo");
+            groupByHeader.add("orderType");
+            groupByHeader.add("daySeq");
+            groupByHeader.add("billNo");
+            groupByHeader.add("transDate");
+            groupByHeader.add("posCode");
+            groupByHeader.add("notes");
+            groupByHeader.add("assemblyStartTime");
+            groupByHeader.add("startTime");
+            groupByHeader.add("orderTypeDesc");
+            groupByHeader.add("posDesc");
+            groupByHeader.add("billTransType");
+            List<Map<String, Object>> itemsResults = TransformGroupingData.transformData(queueResult, groupByHeader,
+                    "items");
+            for (Map<String,Object> itemsResult : itemsResults) {
+                List<Map<String, Object>> items = (List<Map<String, Object>>) itemsResult.get("items");
+                for (Map<String, Object> item : items) {
+                    /* IT WILL REPLACE THE DETAIL DESCRIPTION IF THE DRINK IN A PACKAGE MENU */
+                    item.put("description", item.get("detailDescription"));
+                }
+                itemsResult.put("items", items);
+            }
+            return itemsResults;
         }
 
         @Override

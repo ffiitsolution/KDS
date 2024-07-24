@@ -88,9 +88,11 @@
 	</dependencies>
 
 	<build>
-	<!-- <finalName>${project.artifactId}-0</finalName> -->
-	<!-- <finalName>${project.artifactId}-3</finalName> -->
-	<finalName>${project.artifactId}</finalName>
+<!--	 <finalName>${project.artifactId}-0</finalName>-->
+	 <finalName>${project.artifactId}-1</finalName>
+<!--	 <finalName>${project.artifactId}-2</finalName>-->
+<!--	 <finalName>${project.artifactId}-3</finalName>-->
+<!--	<finalName>${project.artifactId}</finalName>-->
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
